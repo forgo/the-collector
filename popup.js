@@ -2,6 +2,9 @@
 // Main popup logic for Image Explorer extension
 // Depends on: Constants, UrlUtils, FilenameUtils, ThemeManager (loaded before this file)
 
+// Detect which browser API to use (Firefox uses 'browser', Chrome uses 'chrome')
+const browserAPI = (typeof browser !== 'undefined') ? browser : chrome;
+
 // Module aliases for cleaner code
 const IMAGE_EXTENSIONS = window.Constants ? window.Constants.IMAGE_EXTENSIONS : ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
 const GROUP_COLORS = window.Constants ? window.Constants.GROUP_COLORS : ['#1a73e8', '#ea4335', '#34a853', '#fbbc04', '#9c27b0', '#00acc1', '#ff7043', '#8bc34a', '#e91e63', '#3f51b5'];
@@ -43,7 +46,7 @@ function saveImageMetaDebounced() {
   }
   imageMetaSaveTimer = setTimeout(function() {
     imageMetaSaveTimer = null;
-    chrome.storage.local.set({ imageMeta: imageMeta });
+    browserAPI.storage.local.set({ imageMeta: imageMeta });
   }, 500); // Wait 500ms after last update before saving
 }
 
@@ -341,10 +344,10 @@ function removeImageCentralized(url) {
   }
 
   // 5. Persist to storage
-  chrome.storage.local.get('navigationStack', function(result) {
+  browserAPI.storage.local.get('navigationStack', function(result) {
     const stack = result.navigationStack || [];
     const newStack = stack.filter(function(u) { return u !== url; });
-    chrome.storage.local.set({
+    browserAPI.storage.local.set({
       navigationStack: newStack,
       imageMeta: imageMeta,
       urlMeta: urlMeta
@@ -407,10 +410,10 @@ function removeImagesBulk(urls) {
   }
 
   // 4. Persist to storage
-  chrome.storage.local.get('navigationStack', function(result) {
+  browserAPI.storage.local.get('navigationStack', function(result) {
     const stack = result.navigationStack || [];
     const newStack = stack.filter(function(u) { return !urlSet.has(u); });
-    chrome.storage.local.set({
+    browserAPI.storage.local.set({
       navigationStack: newStack,
       imageMeta: imageMeta,
       urlMeta: urlMeta
@@ -540,7 +543,7 @@ function init() {
   const statusDiv = document.getElementById('status');
 
   // Load stored data
-  chrome.storage.local.get([
+  browserAPI.storage.local.get([
     'navigationStack', 'downloadDirectory', 'groups', 'currentView', 'imageMeta', 'urlMeta', 'settings'
   ], function(result) {
     const allUrls = result.navigationStack || [];
@@ -696,7 +699,7 @@ function validateCustomTheme(jsonStr) {
 }
 
 function saveSettings() {
-  chrome.storage.local.set({
+  browserAPI.storage.local.set({
     settings: settings,
     downloadDirectory: settings.downloadDirectory
   });
@@ -876,7 +879,7 @@ function setView(view) {
   });
 
   // Save preference
-  chrome.storage.local.set({ currentView: view });
+  browserAPI.storage.local.set({ currentView: view });
 }
 
 // Get thumbnail size in pixels based on current view and settings
@@ -2374,7 +2377,7 @@ function addSelectedDropItems(items, groupId) {
   }
 
   // Add to storage
-  chrome.storage.local.get(['navigationStack', 'groups', 'urlMeta'], function(result) {
+  browserAPI.storage.local.get(['navigationStack', 'groups', 'urlMeta'], function(result) {
     const stack = result.navigationStack || [];
     const storedGroups = result.groups || [];
     const urlMeta = result.urlMeta || {};
@@ -2397,7 +2400,7 @@ function addSelectedDropItems(items, groupId) {
       }
     });
 
-    chrome.storage.local.set({
+    browserAPI.storage.local.set({
       navigationStack: stack,
       groups: storedGroups,
       urlMeta: urlMeta
@@ -3170,7 +3173,7 @@ function moveUrlToGroup(url, targetGroupId, insertIndex) {
       imageURLs.splice(adjustedPos, 0, url);
 
       // Save imageURLs order
-      chrome.storage.local.set({ imageURLs: imageURLs });
+      browserAPI.storage.local.set({ imageURLs: imageURLs });
     }
   }
 
@@ -3236,7 +3239,7 @@ function moveUrlsToGroup(urls, targetGroupId, insertIndex) {
         imageURLs.splice(targetPosInImageURLs + i, 0, urls[i]);
       }
 
-      chrome.storage.local.set({ imageURLs: imageURLs });
+      browserAPI.storage.local.set({ imageURLs: imageURLs });
     }
   }
 
@@ -3645,7 +3648,7 @@ function updateGroup(groupId, updates) {
 }
 
 function saveGroups() {
-  chrome.storage.local.set({ groups: groups });
+  browserAPI.storage.local.set({ groups: groups });
 }
 
 function removeImage(url) {
@@ -3684,7 +3687,7 @@ function setupEventListeners(statusDiv) {
       'Clear All Images',
       'Remove all ' + totalImages + ' images and ' + groups.length + ' groups? This cannot be undone.',
       function() {
-        chrome.storage.local.set({ navigationStack: [], groups: [], imageMeta: {} }, function() {
+        browserAPI.storage.local.set({ navigationStack: [], groups: [], imageMeta: {} }, function() {
           imageURLs = [];
           selectedUrls.clear();
           groups = [];
@@ -3750,14 +3753,14 @@ function downloadImages(downloads, statusDiv) {
     // willRename: true = 'uniquify' (auto-rename), false = 'overwrite'
     const conflictAction = (item.willRename !== false) ? 'uniquify' : 'overwrite';
 
-    chrome.downloads.download({
+    browserAPI.downloads.download({
       url: item.url,
       filename: filePath,
       saveAs: false,
       conflictAction: conflictAction
     }, function() {
-      if (chrome.runtime.lastError) {
-        console.error('Download error:', chrome.runtime.lastError);
+      if (browserAPI.runtime.lastError) {
+        console.error('Download error:', browserAPI.runtime.lastError);
         failed++;
       } else {
         completed++;
@@ -3772,7 +3775,7 @@ function downloadImages(downloads, statusDiv) {
 
           // Clear list if setting enabled
           if (settings.clearOnDownload) {
-            chrome.storage.local.set({ navigationStack: [], groups: [] }, function() {
+            browserAPI.storage.local.set({ navigationStack: [], groups: [] }, function() {
               imageURLs = [];
               selectedUrls.clear();
               groups = [];
@@ -3900,7 +3903,7 @@ function setupUndockButton() {
   const undockBtn = document.getElementById('undock-btn');
   if (undockBtn) {
     undockBtn.addEventListener('click', function() {
-      chrome.runtime.sendMessage({ action: 'openInWindow' }, function(response) {
+      browserAPI.runtime.sendMessage({ action: 'openInWindow' }, function(response) {
         if (response && response.success) {
           // Close the popup after opening window
           window.close();
@@ -3914,7 +3917,7 @@ function setupUndockButton() {
 function setupStorageListener() {
   let renderDebounceTimer = null;
 
-  chrome.storage.onChanged.addListener(function(changes, areaName) {
+  browserAPI.storage.onChanged.addListener(function(changes, areaName) {
     if (areaName !== 'local') return;
 
     // Ignore imageMeta-only changes - these are triggered by our own image loads

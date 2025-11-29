@@ -1,5 +1,8 @@
 // content.js
 (function() {
+  // Detect which browser API to use (Firefox uses 'browser', Chrome uses 'chrome')
+  const browserAPI = (typeof browser !== 'undefined') ? browser : chrome;
+
   // Track active elements
   let activeButtons = [];
   let activeDropdown = null;
@@ -9,9 +12,9 @@
   // Load the current navigation stack
   function loadNavigationStack() {
     return new Promise((resolve, reject) => {
-      chrome.storage.local.get('navigationStack', function(result) {
-        if (chrome.runtime.lastError) {
-          reject(chrome.runtime.lastError);
+      browserAPI.storage.local.get('navigationStack', function(result) {
+        if (browserAPI.runtime.lastError) {
+          reject(browserAPI.runtime.lastError);
         } else {
           resolve(result.navigationStack || []);
         }
@@ -22,9 +25,9 @@
   // Load groups from storage
   function loadGroups() {
     return new Promise((resolve, reject) => {
-      chrome.storage.local.get('groups', function(result) {
-        if (chrome.runtime.lastError) {
-          reject(chrome.runtime.lastError);
+      browserAPI.storage.local.get('groups', function(result) {
+        if (browserAPI.runtime.lastError) {
+          reject(browserAPI.runtime.lastError);
         } else {
           resolve(result.groups || []);
         }
@@ -35,9 +38,9 @@
   // Save groups to storage
   function saveGroups(groups) {
     return new Promise((resolve, reject) => {
-      chrome.storage.local.set({ groups: groups }, function() {
-        if (chrome.runtime.lastError) {
-          reject(chrome.runtime.lastError);
+      browserAPI.storage.local.set({ groups: groups }, function() {
+        if (browserAPI.runtime.lastError) {
+          reject(browserAPI.runtime.lastError);
         } else {
           resolve();
         }
@@ -48,9 +51,9 @@
   // Save the updated navigation stack
   function saveNavigationStack(stack) {
     return new Promise((resolve, reject) => {
-      chrome.storage.local.set({ navigationStack: stack }, function() {
-        if (chrome.runtime.lastError) {
-          reject(chrome.runtime.lastError);
+      browserAPI.storage.local.set({ navigationStack: stack }, function() {
+        if (browserAPI.runtime.lastError) {
+          reject(browserAPI.runtime.lastError);
         } else {
           resolve();
         }
@@ -61,9 +64,9 @@
   // Load URL metadata from storage
   function loadUrlMeta() {
     return new Promise((resolve, reject) => {
-      chrome.storage.local.get('urlMeta', function(result) {
-        if (chrome.runtime.lastError) {
-          reject(chrome.runtime.lastError);
+      browserAPI.storage.local.get('urlMeta', function(result) {
+        if (browserAPI.runtime.lastError) {
+          reject(browserAPI.runtime.lastError);
         } else {
           resolve(result.urlMeta || {});
         }
@@ -74,9 +77,9 @@
   // Save URL metadata to storage
   function saveUrlMeta(urlMeta) {
     return new Promise((resolve, reject) => {
-      chrome.storage.local.set({ urlMeta: urlMeta }, function() {
-        if (chrome.runtime.lastError) {
-          reject(chrome.runtime.lastError);
+      browserAPI.storage.local.set({ urlMeta: urlMeta }, function() {
+        if (browserAPI.runtime.lastError) {
+          reject(browserAPI.runtime.lastError);
         } else {
           resolve();
         }
@@ -392,7 +395,7 @@
           stack.push(linkUrl);
           return saveNavigationStack(stack);
         }).then(() => {
-          chrome.runtime.sendMessage({
+          browserAPI.runtime.sendMessage({
             action: 'openPopup',
             url: linkUrl
           });

@@ -1,5 +1,8 @@
 // shared/storage-utils.js
-// Chrome storage abstraction and utilities
+// Cross-browser storage abstraction and utilities
+
+// Detect which browser API to use (Firefox uses 'browser', Chrome uses 'chrome')
+const browserAPI = (typeof browser !== 'undefined') ? browser : chrome;
 
 /**
  * Storage keys used by the extension
@@ -22,9 +25,9 @@ const STORAGE_KEYS = {
 function storageGet(keys) {
   return new Promise(function(resolve, reject) {
     try {
-      chrome.storage.local.get(keys, function(result) {
-        if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError.message));
+      browserAPI.storage.local.get(keys, function(result) {
+        if (browserAPI.runtime.lastError) {
+          reject(new Error(browserAPI.runtime.lastError.message));
         } else {
           resolve(result);
         }
@@ -43,9 +46,9 @@ function storageGet(keys) {
 function storageSet(data) {
   return new Promise(function(resolve, reject) {
     try {
-      chrome.storage.local.set(data, function() {
-        if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError.message));
+      browserAPI.storage.local.set(data, function() {
+        if (browserAPI.runtime.lastError) {
+          reject(new Error(browserAPI.runtime.lastError.message));
         } else {
           resolve();
         }
@@ -64,9 +67,9 @@ function storageSet(data) {
 function storageRemove(keys) {
   return new Promise(function(resolve, reject) {
     try {
-      chrome.storage.local.remove(keys, function() {
-        if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError.message));
+      browserAPI.storage.local.remove(keys, function() {
+        if (browserAPI.runtime.lastError) {
+          reject(new Error(browserAPI.runtime.lastError.message));
         } else {
           resolve();
         }
@@ -84,9 +87,9 @@ function storageRemove(keys) {
 function storageClear() {
   return new Promise(function(resolve, reject) {
     try {
-      chrome.storage.local.clear(function() {
-        if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError.message));
+      browserAPI.storage.local.clear(function() {
+        if (browserAPI.runtime.lastError) {
+          reject(new Error(browserAPI.runtime.lastError.message));
         } else {
           resolve();
         }

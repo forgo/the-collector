@@ -1,6 +1,9 @@
 // downloads/download-manager.js
 // Download queue management and execution
 
+// Detect which browser API to use (Firefox uses 'browser', Chrome uses 'chrome')
+const browserAPI = (typeof browser !== 'undefined') ? browser : chrome;
+
 /**
  * Download state tracking
  */
@@ -59,16 +62,16 @@ function downloadSingle(item) {
     // willRename: true = 'uniquify' (auto-rename), false = 'overwrite'
     const conflictAction = (item.willRename !== false) ? 'uniquify' : 'overwrite';
 
-    chrome.downloads.download({
+    browserAPI.downloads.download({
       url: item.url,
       filename: filePath,
       saveAs: false,
       conflictAction: conflictAction
     }, function(downloadId) {
-      if (chrome.runtime.lastError) {
+      if (browserAPI.runtime.lastError) {
         resolve({
           success: false,
-          error: chrome.runtime.lastError.message,
+          error: browserAPI.runtime.lastError.message,
           url: item.url
         });
       } else {
