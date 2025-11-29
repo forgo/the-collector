@@ -1,23 +1,47 @@
-// background.js - Service Worker for Manifest V3
+// background.js - Background script (Service Worker for Chrome MV3, Event Page for Firefox MV2)
 // Note: Service workers are ephemeral - don't rely on persistent in-memory state
 
-// Use chrome.storage.session for temporary state (persists across service worker restarts but not browser restarts)
+// Detect browser API (Firefox uses 'browser', Chrome uses 'chrome')
+const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
+
+// Check if session storage is available (Chrome MV3 only)
+const hasSessionStorage = browserAPI.storage && browserAPI.storage.session;
+
+// Fallback storage for Firefox (uses local storage with a prefix)
+const SESSION_KEY_PREFIX = '_session_';
+
 // Track active popup window ID
 async function getActivePopupWindowId() {
-  const result = await chrome.storage.session.get('activePopupWindowId');
-  return result.activePopupWindowId || null;
+  if (hasSessionStorage) {
+    const result = await browserAPI.storage.session.get('activePopupWindowId');
+    return result.activePopupWindowId || null;
+  } else {
+    // Fallback to local storage for Firefox
+    const result = await browserAPI.storage.local.get(SESSION_KEY_PREFIX + 'activePopupWindowId');
+    return result[SESSION_KEY_PREFIX + 'activePopupWindowId'] || null;
+  }
 }
 
 async function setActivePopupWindowId(windowId) {
-  await chrome.storage.session.set({ activePopupWindowId: windowId });
+  if (hasSessionStorage) {
+    await browserAPI.storage.session.set({ activePopupWindowId: windowId });
+  } else {
+    const data = {};
+    data[SESSION_KEY_PREFIX + 'activePopupWindowId'] = windowId;
+    await browserAPI.storage.local.set(data);
+  }
 }
 
 async function clearActivePopupWindowId() {
-  await chrome.storage.session.remove('activePopupWindowId');
+  if (hasSessionStorage) {
+    await browserAPI.storage.session.remove('activePopupWindowId');
+  } else {
+    await browserAPI.storage.local.remove(SESSION_KEY_PREFIX + 'activePopupWindowId');
+  }
 }
 
 // Handle messages from content scripts and popup
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
   // Use async handler pattern for Manifest V3
   handleMessage(request, sender).then(sendResponse);
   return true; // Indicates we will respond asynchronously
@@ -33,7 +57,7 @@ async function handleMessage(request, sender) {
       return { error: 'Directory picker not available in extensions. Use the text input.' };
 
     case 'setDownloadDirectory':
-      await chrome.storage.local.set({ downloadDirectory: request.directory });
+      await browserAPI.storage.local.set({ downloadDirectory: request.directory });
       return { success: true };
 
     case 'openInWindow':
@@ -50,13 +74,13 @@ async function handleOpenPopup(request) {
   if (activeWindowId) {
     try {
       // Check if window still exists
-      const existingWindow = await chrome.windows.get(activeWindowId);
+      const existingWindow = await browserAPI.windows.get(activeWindowId);
       if (existingWindow) {
         // Focus existing window and update URL
-        await chrome.windows.update(activeWindowId, { focused: true });
-        const tabs = await chrome.tabs.query({ windowId: activeWindowId });
+        await browserAPI.windows.update(activeWindowId, { focused: true });
+        const tabs = await browserAPI.tabs.query({ windowId: activeWindowId });
         if (tabs.length > 0) {
-          await chrome.tabs.update(tabs[0].id, { url: request.url });
+          await browserAPI.tabs.update(tabs[0].id, { url: request.url });
         }
         return { success: true, windowId: activeWindowId };
       }
@@ -67,7 +91,7 @@ async function handleOpenPopup(request) {
   }
 
   // Create new popup window
-  const newWindow = await chrome.windows.create({
+  const newWindow = await browserAPI.windows.create({
     url: request.url,
     type: 'popup',
     width: 800,
@@ -76,10 +100,10 @@ async function handleOpenPopup(request) {
 
   await setActivePopupWindowId(newWindow.id);
 
-  // Inject content script using Manifest V3 API
-  if (newWindow.tabs && newWindow.tabs.length > 0) {
+  // Inject content script - use chrome.scripting for MV3, or skip for MV2 (content scripts auto-inject)
+  if (browserAPI.scripting && newWindow.tabs && newWindow.tabs.length > 0) {
     try {
-      await chrome.scripting.executeScript({
+      await browserAPI.scripting.executeScript({
         target: { tabId: newWindow.tabs[0].id },
         files: ['content.js']
       });
@@ -92,8 +116,8 @@ async function handleOpenPopup(request) {
 }
 
 async function handleOpenInWindow() {
-  const newWindow = await chrome.windows.create({
-    url: chrome.runtime.getURL('popup.html'),
+  const newWindow = await browserAPI.windows.create({
+    url: browserAPI.runtime.getURL('popup.html'),
     type: 'popup',
     width: 700,
     height: 800
@@ -103,7 +127,7 @@ async function handleOpenInWindow() {
 }
 
 // Clean up stored window ID when window is closed
-chrome.windows.onRemoved.addListener(async (windowId) => {
+browserAPI.windows.onRemoved.addListener(async (windowId) => {
   const activeWindowId = await getActivePopupWindowId();
   if (activeWindowId === windowId) {
     await clearActivePopupWindowId();
@@ -111,10 +135,10 @@ chrome.windows.onRemoved.addListener(async (windowId) => {
 });
 
 // Clean up stale storage on extension startup
-chrome.runtime.onStartup.addListener(async () => {
+browserAPI.runtime.onStartup.addListener(async () => {
   try {
     // Remove old/stale keys (including legacy 'imageUrls' and current 'navigationStack')
-    await chrome.storage.local.remove(['imageUrls', 'navigationStack']);
+    await browserAPI.storage.local.remove(['imageUrls', 'navigationStack']);
     console.log('Storage cleaned up on startup.');
   } catch (e) {
     console.error('Error removing storage keys:', e);
@@ -122,10 +146,10 @@ chrome.runtime.onStartup.addListener(async () => {
 });
 
 // Handle extension installation/update
-chrome.runtime.onInstalled.addListener((details) => {
+browserAPI.runtime.onInstalled.addListener((details) => {
   if (details.reason === 'install') {
     console.log('Image Explorer installed');
   } else if (details.reason === 'update') {
-    console.log('Image Explorer updated to version', chrome.runtime.getManifest().version);
+    console.log('Image Explorer updated to version', browserAPI.runtime.getManifest().version);
   }
 });
