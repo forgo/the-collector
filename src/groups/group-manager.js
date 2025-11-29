@@ -32,7 +32,7 @@ function getUngroupedUrls(imageURLs, groups) {
   if (!imageURLs) return [];
   if (!groups || groups.length === 0) return imageURLs.slice();
 
-  var groupedUrls = new Set();
+  const groupedUrls = new Set();
   groups.forEach(function(g) {
     if (g.urls) {
       g.urls.forEach(function(url) {
@@ -54,7 +54,7 @@ function getUngroupedUrls(imageURLs, groups) {
  * @returns {object} New group object
  */
 function createGroup(name, urls, colorIndex) {
-  var GROUP_COLORS = window.Constants ? window.Constants.GROUP_COLORS :
+  const GROUP_COLORS = window.Constants ? window.Constants.GROUP_COLORS :
     ['#1a73e8', '#ea4335', '#34a853', '#fbbc04', '#9c27b0'];
 
   return {
@@ -73,7 +73,7 @@ function createGroup(name, urls, colorIndex) {
  * @param {string} [exceptGroupId] - Group ID to exclude from removal
  */
 function removeUrlsFromGroups(groups, urls, exceptGroupId) {
-  var urlSet = urls instanceof Set ? urls : new Set(urls);
+  const urlSet = urls instanceof Set ? urls : new Set(urls);
 
   groups.forEach(function(g) {
     if (g.id !== exceptGroupId) {
@@ -92,7 +92,7 @@ function removeUrlsFromGroups(groups, urls, exceptGroupId) {
 function addUrlsToGroup(group, urls) {
   if (!group || !group.urls) return;
 
-  var urlsToAdd = urls instanceof Set ? Array.from(urls) : urls;
+  const urlsToAdd = urls instanceof Set ? Array.from(urls) : urls;
 
   urlsToAdd.forEach(function(url) {
     if (group.urls.indexOf(url) === -1) {
@@ -121,7 +121,7 @@ function deleteGroup(groups, groupId) {
  * @returns {object|null} Updated group or null if not found
  */
 function updateGroup(groups, groupId, updates) {
-  var group = groups.find(function(g) {
+  const group = groups.find(function(g) {
     return g.id === groupId;
   });
 
@@ -151,7 +151,7 @@ function findGroupById(groups, groupId) {
  * @returns {Array} URLs in the group, or empty array
  */
 function getGroupUrls(groups, groupId) {
-  var group = findGroupById(groups, groupId);
+  const group = findGroupById(groups, groupId);
   return group ? group.urls.slice() : [];
 }
 
@@ -161,7 +161,7 @@ function getGroupUrls(groups, groupId) {
  * @param {Array} validUrls - Array of valid URLs to keep
  */
 function cleanupGroups(groups, validUrls) {
-  var validSet = new Set(validUrls);
+  const validSet = new Set(validUrls);
 
   groups.forEach(function(g) {
     g.urls = g.urls.filter(function(url) {
@@ -177,8 +177,8 @@ function cleanupGroups(groups, validUrls) {
  * @returns {{grouped: number, ungrouped: number, total: number}}
  */
 function getGroupCounts(groups, imageURLs) {
-  var ungrouped = getUngroupedUrls(imageURLs, groups);
-  var grouped = imageURLs.length - ungrouped.length;
+  const ungrouped = getUngroupedUrls(imageURLs, groups);
+  const grouped = imageURLs.length - ungrouped.length;
 
   return {
     grouped: grouped,

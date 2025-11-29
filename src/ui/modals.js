@@ -6,7 +6,7 @@
  * @param {string|HTMLElement} modal - Modal element or its ID
  */
 function showModal(modal) {
-  var el = typeof modal === 'string' ? document.getElementById(modal) : modal;
+  const el = typeof modal === 'string' ? document.getElementById(modal) : modal;
   if (el) {
     el.classList.add('visible');
   }
@@ -17,7 +17,7 @@ function showModal(modal) {
  * @param {string|HTMLElement} modal - Modal element or its ID
  */
 function hideModal(modal) {
-  var el = typeof modal === 'string' ? document.getElementById(modal) : modal;
+  const el = typeof modal === 'string' ? document.getElementById(modal) : modal;
   if (el) {
     el.classList.remove('visible');
   }
@@ -29,7 +29,7 @@ function hideModal(modal) {
  * @returns {boolean}
  */
 function isModalVisible(modal) {
-  var el = typeof modal === 'string' ? document.getElementById(modal) : modal;
+  const el = typeof modal === 'string' ? document.getElementById(modal) : modal;
   return el ? el.classList.contains('visible') : false;
 }
 
@@ -77,11 +77,11 @@ function setupModalEscapeClose(modal, onClose) {
  */
 function confirm(title, message) {
   return new Promise(function(resolve) {
-    var modal = document.getElementById('confirm-modal');
-    var titleEl = document.getElementById('confirm-title');
-    var messageEl = document.getElementById('confirm-message');
-    var cancelBtn = document.getElementById('confirm-cancel');
-    var okBtn = document.getElementById('confirm-ok');
+    const modal = document.getElementById('confirm-modal');
+    const titleEl = document.getElementById('confirm-title');
+    const messageEl = document.getElementById('confirm-message');
+    const cancelBtn = document.getElementById('confirm-cancel');
+    const okBtn = document.getElementById('confirm-ok');
 
     if (!modal || !titleEl || !messageEl) {
       // Fallback to native confirm
@@ -119,7 +119,7 @@ function confirm(title, message) {
  * @param {HTMLElement} modal - Modal element
  */
 function focusFirstElement(modal) {
-  var focusable = modal.querySelectorAll(
+  const focusable = modal.querySelectorAll(
     'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
   );
   if (focusable.length > 0) {
@@ -135,14 +135,14 @@ function focusFirstElement(modal) {
 function trapFocus(modal, e) {
   if (e.key !== 'Tab') return;
 
-  var focusable = modal.querySelectorAll(
+  const focusable = modal.querySelectorAll(
     'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
   );
 
   if (focusable.length === 0) return;
 
-  var first = focusable[0];
-  var last = focusable[focusable.length - 1];
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
 
   if (e.shiftKey && document.activeElement === first) {
     e.preventDefault();
@@ -161,11 +161,11 @@ function trapFocus(modal, e) {
  * @returns {HTMLElement} Modal content element
  */
 function createModalContent(options) {
-  var content = document.createElement('div');
+  const content = document.createElement('div');
   content.className = 'modal-content' + (options.className ? ' ' + options.className : '');
 
   if (options.title) {
-    var header = document.createElement('h4');
+    const header = document.createElement('h4');
     header.textContent = options.title;
     content.appendChild(header);
   }
@@ -184,15 +184,15 @@ function createModalContent(options) {
  * @returns {HTMLElement} Button container element
  */
 function createModalActions(options) {
-  var actions = document.createElement('div');
+  const actions = document.createElement('div');
   actions.className = 'modal-actions';
 
-  var cancelBtn = document.createElement('button');
+  const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn btn--secondary';
   cancelBtn.textContent = options.cancelText || 'Cancel';
   cancelBtn.addEventListener('click', options.onCancel);
 
-  var confirmBtn = document.createElement('button');
+  const confirmBtn = document.createElement('button');
   confirmBtn.className = 'btn btn--' + (options.confirmVariant || 'primary');
   confirmBtn.textContent = options.confirmText || 'OK';
   confirmBtn.addEventListener('click', options.onConfirm);

@@ -9,14 +9,14 @@
 function isImageUrl(url) {
   if (!url) return false;
 
-  var IMAGE_EXTENSIONS = window.Constants ? window.Constants.IMAGE_EXTENSIONS : ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+  const IMAGE_EXTENSIONS = window.Constants ? window.Constants.IMAGE_EXTENSIONS : ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
 
   // Data URLs for images are always valid
   if (url.startsWith('data:image/')) return true;
 
   try {
-    var urlObj = new URL(url);
-    var pathname = urlObj.pathname.toLowerCase();
+    const urlObj = new URL(url);
+    const pathname = urlObj.pathname.toLowerCase();
 
     // Check if pathname ends with image extension
     if (IMAGE_EXTENSIONS.some(function(ext) { return pathname.endsWith(ext); })) {
@@ -32,13 +32,13 @@ function isImageUrl(url) {
 
     // If there's no extension at all in the pathname, it might still be an image
     // (many CDNs serve images without extensions)
-    var lastSegment = pathname.split('/').pop();
+    const lastSegment = pathname.split('/').pop();
     if (lastSegment && !lastSegment.includes('.')) {
       return true; // Trust URLs without extensions - content script validated them
     }
   } catch (e) {
     // If URL parsing fails, fall back to simple check
-    var lowerUrl = url.toLowerCase();
+    const lowerUrl = url.toLowerCase();
     return IMAGE_EXTENSIONS.some(function(ext) { return lowerUrl.includes(ext); });
   }
 
@@ -81,36 +81,36 @@ function getExtensionFromUrl(url) {
 
   // Handle data URLs
   if (url.startsWith('data:image/')) {
-    var mimeMatch = url.match(/^data:image\/(\w+)/);
+    const mimeMatch = url.match(/^data:image\/(\w+)/);
     if (mimeMatch) {
-      var ext = mimeMatch[1].toLowerCase();
+      const ext = mimeMatch[1].toLowerCase();
       return '.' + (ext === 'jpeg' ? 'jpg' : ext);
     }
     return '.png';
   }
 
   try {
-    var urlObj = new URL(url);
-    var pathname = urlObj.pathname;
-    var lastSegment = pathname.split('/').pop() || '';
+    const urlObj = new URL(url);
+    const pathname = urlObj.pathname;
+    const lastSegment = pathname.split('/').pop() || '';
 
     // Check if the last segment has a file extension
-    var extMatch = lastSegment.match(/\.(\w+)$/);
+    const extMatch = lastSegment.match(/\.(\w+)$/);
     if (extMatch) {
       return '.' + extMatch[1].toLowerCase();
     }
 
     // Check common query params for format hints
-    var format = urlObj.searchParams.get('format') ||
+    const format = urlObj.searchParams.get('format') ||
                  urlObj.searchParams.get('f') ||
                  urlObj.searchParams.get('type');
     if (format) {
-      var normalizedFormat = format.toLowerCase();
+      const normalizedFormat = format.toLowerCase();
       return '.' + (normalizedFormat === 'jpeg' ? 'jpg' : normalizedFormat);
     }
   } catch (e) {
     // Fallback for malformed URLs
-    var match = url.match(/\.(\w+)(?:\?|$)/);
+    const match = url.match(/\.(\w+)(?:\?|$)/);
     if (match) {
       return '.' + match[1].toLowerCase();
     }

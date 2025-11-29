@@ -249,17 +249,17 @@ const THEME_SCHEMA = {
  * @param {Object.<string, string>} [customOverrides] - Custom CSS variable overrides
  */
 function applyTheme(themeId, customOverrides) {
-  var root = document.documentElement;
+  const root = document.documentElement;
 
   // First, remove all theme variables to reset to CSS defaults
-  var allVars = Object.values(THEME_SCHEMA.properties).flat();
+  const allVars = Object.values(THEME_SCHEMA.properties).flat();
   allVars.forEach(function(varName) {
     root.style.removeProperty(varName);
   });
 
   // Apply preset theme variables
   if (themeId && THEME_PRESETS[themeId]) {
-    var preset = THEME_PRESETS[themeId];
+    const preset = THEME_PRESETS[themeId];
     Object.entries(preset.variables).forEach(function(entry) {
       root.style.setProperty(entry[0], entry[1]);
     });
@@ -286,13 +286,13 @@ function validateCustomTheme(jsonStr) {
   }
 
   try {
-    var parsed = JSON.parse(jsonStr);
+    const parsed = JSON.parse(jsonStr);
     if (typeof parsed !== 'object' || Array.isArray(parsed)) {
       return { valid: false, error: 'Theme must be a JSON object' };
     }
 
     // Check that all keys are valid CSS variable names
-    for (var key of Object.keys(parsed)) {
+    for (const key of Object.keys(parsed)) {
       if (!key.startsWith('--')) {
         return { valid: false, error: 'All keys must start with "--" (e.g., "--bg-body")' };
       }
@@ -310,8 +310,8 @@ function validateCustomTheme(jsonStr) {
  * @param {string} scale - 'small', 'medium', or 'large'
  */
 function applyUIScale(scale) {
-  var root = document.documentElement;
-  var validScales = window.Constants ? window.Constants.VALID_UI_SCALES : ['small', 'medium', 'large'];
+  const root = document.documentElement;
+  const validScales = window.Constants ? window.Constants.VALID_UI_SCALES : ['small', 'medium', 'large'];
 
   if (validScales.includes(scale)) {
     root.setAttribute('data-ui-scale', scale);
@@ -326,8 +326,8 @@ function applyUIScale(scale) {
  * @param {string} density - 'compact', 'comfortable', or 'spacious'
  */
 function applyDensity(density) {
-  var root = document.documentElement;
-  var validDensities = window.Constants ? window.Constants.VALID_DENSITIES : ['compact', 'comfortable', 'spacious'];
+  const root = document.documentElement;
+  const validDensities = window.Constants ? window.Constants.VALID_DENSITIES : ['compact', 'comfortable', 'spacious'];
 
   if (validDensities.includes(density)) {
     root.setAttribute('data-density', density);

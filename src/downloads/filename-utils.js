@@ -8,22 +8,22 @@
  * @returns {string} The generated filename with extension
  */
 function getFilenameFromUrl(url, existingNames) {
-  var filename = '';
-  var extension = '';
+  let filename = '';
+  let extension = '';
 
   try {
     // Handle data URLs
     if (url.startsWith('data:image/')) {
-      var mimeMatch = url.match(/^data:image\/(\w+)/);
+      const mimeMatch = url.match(/^data:image\/(\w+)/);
       extension = mimeMatch ? '.' + mimeMatch[1].replace('jpeg', 'jpg') : '.png';
       filename = '';
     } else {
-      var urlObj = new URL(url);
-      var pathname = urlObj.pathname;
-      var lastSegment = pathname.split('/').pop() || '';
+      const urlObj = new URL(url);
+      const pathname = urlObj.pathname;
+      const lastSegment = pathname.split('/').pop() || '';
 
       // Check if the last segment has a file extension
-      var extMatch = lastSegment.match(/\.(\w+)$/);
+      const extMatch = lastSegment.match(/\.(\w+)$/);
       if (extMatch) {
         extension = '.' + extMatch[1].toLowerCase();
         filename = lastSegment.slice(0, -extension.length);
@@ -32,7 +32,7 @@ function getFilenameFromUrl(url, existingNames) {
         filename = lastSegment;
 
         // Check common query params for format hints
-        var format = urlObj.searchParams.get('format') ||
+        const format = urlObj.searchParams.get('format') ||
                      urlObj.searchParams.get('f') ||
                      urlObj.searchParams.get('type');
         if (format) {
@@ -43,11 +43,11 @@ function getFilenameFromUrl(url, existingNames) {
       // If filename is empty or generic, try to extract something meaningful
       if (!filename || filename === 'image' || filename === 'photo') {
         // Try using path segments for context
-        var segments = pathname.split('/').filter(function(s) { return s && s !== filename; });
+        const segments = pathname.split('/').filter(function(s) { return s && s !== filename; });
         if (segments.length > 0) {
-          var lastMeaningful = segments[segments.length - 1];
+          const lastMeaningful = segments[segments.length - 1];
           // Use if it's not just a number or generic term
-          var genericTerms = ['images', 'image', 'photos', 'photo', 'media', 'assets', 'static', 'cdn'];
+          const genericTerms = ['images', 'image', 'photos', 'photo', 'media', 'assets', 'static', 'cdn'];
           if (lastMeaningful && !/^\d+$/.test(lastMeaningful) &&
               genericTerms.indexOf(lastMeaningful.toLowerCase()) === -1) {
             filename = lastMeaningful;
@@ -56,10 +56,10 @@ function getFilenameFromUrl(url, existingNames) {
 
         // Try hostname as prefix if still empty
         if (!filename) {
-          var hostParts = urlObj.hostname.split('.');
+          const hostParts = urlObj.hostname.split('.');
           // Get domain name (skip www, cdn, etc.)
-          var skipParts = ['www', 'cdn', 'static', 'images', 'img', 'media'];
-          var domain = hostParts.find(function(p) {
+          const skipParts = ['www', 'cdn', 'static', 'images', 'img', 'media'];
+          const domain = hostParts.find(function(p) {
             return skipParts.indexOf(p) === -1 && p.length > 2;
           });
           if (domain) {
@@ -70,9 +70,9 @@ function getFilenameFromUrl(url, existingNames) {
     }
   } catch (e) {
     // Fallback for malformed URLs
-    var parts = url.split('/');
+    const parts = url.split('/');
     filename = parts[parts.length - 1] || '';
-    var fallbackExtMatch = filename.match(/\.(\w+)$/);
+    const fallbackExtMatch = filename.match(/\.(\w+)$/);
     if (fallbackExtMatch) {
       extension = '.' + fallbackExtMatch[1].toLowerCase();
       filename = filename.slice(0, -extension.length);
@@ -90,9 +90,9 @@ function getFilenameFromUrl(url, existingNames) {
   }
 
   // Make the filename unique if existingNames is provided
-  var finalName = filename + extension;
+  let finalName = filename + extension;
   if (existingNames && existingNames.size > 0) {
-    var counter = 1;
+    let counter = 1;
     while (existingNames.has(finalName.toLowerCase())) {
       finalName = filename + '_' + counter + extension;
       counter++;
@@ -113,13 +113,13 @@ function getFilenameFromUrl(url, existingNames) {
  * @returns {string} The processed filename with extension
  */
 function applyFilenameTemplate(template, context) {
-  var name = context.name || 'image';
-  var extension = context.extension || '.jpg';
-  var index = context.index || 1;
-  var group = context.group || 'Ungrouped';
+  const name = context.name || 'image';
+  const extension = context.extension || '.jpg';
+  const index = context.index || 1;
+  const group = context.group || 'Ungrouped';
 
   // Get current date/time
-  var now = new Date();
+  const now = new Date();
 
   // Pad function for numbers
   function pad(n, width) {
@@ -129,32 +129,32 @@ function applyFilenameTemplate(template, context) {
   }
 
   // Date components
-  var year4 = now.getFullYear();
-  var year2 = String(year4).slice(-2);
-  var month = pad(now.getMonth() + 1);
-  var day = pad(now.getDate());
-  var hours = pad(now.getHours());
-  var minutes = pad(now.getMinutes());
-  var seconds = pad(now.getSeconds());
+  const year4 = now.getFullYear();
+  const year2 = String(year4).slice(-2);
+  const month = pad(now.getMonth() + 1);
+  const day = pad(now.getDate());
+  const hours = pad(now.getHours());
+  const minutes = pad(now.getMinutes());
+  const seconds = pad(now.getSeconds());
 
   // Month names
-  var monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
                     'July', 'August', 'September', 'October', 'November', 'December'];
-  var monthShort = monthNames[now.getMonth()].slice(0, 3);
-  var monthLong = monthNames[now.getMonth()];
+  const monthShort = monthNames[now.getMonth()].slice(0, 3);
+  const monthLong = monthNames[now.getMonth()];
 
   // Day names
-  var dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  var dayShort = dayNames[now.getDay()].slice(0, 3);
-  var dayLong = dayNames[now.getDay()];
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const dayShort = dayNames[now.getDay()].slice(0, 3);
+  const dayLong = dayNames[now.getDay()];
 
   // Convenience formats
-  var dateStr = year4 + '-' + month + '-' + day; // YYYY-MM-DD
-  var timeStr = hours + '-' + minutes + '-' + seconds; // hh-mm-ss (file-safe)
-  var isoStr = year4 + month + day + 'T' + hours + minutes + seconds; // Compact ISO-like
+  const dateStr = year4 + '-' + month + '-' + day; // YYYY-MM-DD
+  const timeStr = hours + '-' + minutes + '-' + seconds; // hh-mm-ss (file-safe)
+  const isoStr = year4 + month + day + 'T' + hours + minutes + seconds; // Compact ISO-like
 
   // Replace all tokens
-  var result = template
+  let result = template
     // Core tokens
     .replace(/\{name\}/gi, name)
     .replace(/\{original\}/gi, name) // Backwards compatibility
@@ -200,7 +200,7 @@ function applyFilenameTemplate(template, context) {
 function splitFilename(filename) {
   if (!filename) return { name: '', extension: '' };
 
-  var match = filename.match(/^(.+?)(\.[^.]+)$/);
+  const match = filename.match(/^(.+?)(\.[^.]+)$/);
   if (match) {
     return { name: match[1], extension: match[2] };
   }
@@ -217,9 +217,9 @@ function makeFilenameUnique(filename, existingNames) {
   if (!existingNames || existingNames.size === 0) return filename;
   if (!existingNames.has(filename.toLowerCase())) return filename;
 
-  var parts = splitFilename(filename);
-  var counter = 1;
-  var newFilename;
+  const parts = splitFilename(filename);
+  let counter = 1;
+  let newFilename;
 
   do {
     newFilename = parts.name + '_' + counter + parts.extension;

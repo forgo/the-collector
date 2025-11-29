@@ -10,13 +10,13 @@ const THEME_SCHEMA = window.ThemeManager ? window.ThemeManager.THEME_SCHEMA : { 
 
 // State
 let currentView = 'list';
-let selectedUrls = new Set();
+const selectedUrls = new Set();
 let groups = []; // { id, name, directory, color, urls: [] }
 let imageURLs = [];
 let imageMeta = {}; // { url: { width, height, type, filename } }
 let urlMeta = {}; // { url: { source, addedAt, validated, contentType } }
 let draggedUrl = null;
-let failedUrls = new Set(); // Track URLs that failed to load (CORS, etc.)
+const failedUrls = new Set(); // Track URLs that failed to load (CORS, etc.)
 let imageMetaSaveTimer = null; // Debounce timer for saving imageMeta
 let settings = Object.assign({}, window.Constants ? window.Constants.DEFAULT_SETTINGS : {
   downloadDirectory: '',
@@ -76,16 +76,16 @@ function getFilenameFromUrl(url, existingNames) {
     return window.FilenameUtils.getFilenameFromUrl(url, existingNames);
   }
   // Minimal fallback
-  var filename = 'image';
-  var extension = '.jpg';
+  let filename = 'image';
+  let extension = '.jpg';
   try {
     if (url.startsWith('data:image/')) {
-      var mimeMatch = url.match(/^data:image\/(\w+)/);
+      const mimeMatch = url.match(/^data:image\/(\w+)/);
       extension = mimeMatch ? '.' + mimeMatch[1].replace('jpeg', 'jpg') : '.png';
     } else {
-      var urlObj = new URL(url);
-      var lastSegment = urlObj.pathname.split('/').pop() || '';
-      var extMatch = lastSegment.match(/\.(\w+)$/);
+      const urlObj = new URL(url);
+      const lastSegment = urlObj.pathname.split('/').pop() || '';
+      const extMatch = lastSegment.match(/\.(\w+)$/);
       if (extMatch) {
         extension = '.' + extMatch[1].toLowerCase();
         filename = lastSegment.slice(0, -extension.length) || 'image';
@@ -103,9 +103,9 @@ function applyFilenameTemplate(template, context) {
     return window.FilenameUtils.applyFilenameTemplate(template, context);
   }
   // Minimal fallback - just replace {name} and add extension
-  var name = context.name || 'image';
-  var extension = context.extension || '.jpg';
-  var result = template.replace(/\{name\}/gi, name).replace(/[<>:"/\\|?*]/g, '_');
+  const name = context.name || 'image';
+  const extension = context.extension || '.jpg';
+  const result = template.replace(/\{name\}/gi, name).replace(/[<>:"/\\|?*]/g, '_');
   return result + extension;
 }
 
@@ -221,10 +221,10 @@ function updateSelection(url, selected, source) {
   if (window.SelectionUtils && window.SelectionUtils.updateSelectionDOM) {
     window.SelectionUtils.updateSelectionDOM(url, selected);
   } else {
-    var items = document.querySelectorAll('.image-item[data-url="' + CSS.escape(url) + '"]');
+    const items = document.querySelectorAll('.image-item[data-url="' + CSS.escape(url) + '"]');
     items.forEach(function(item) {
       item.classList.toggle('selected', selected);
-      var checkbox = item.querySelector('.item-checkbox');
+      const checkbox = item.querySelector('.item-checkbox');
       if (checkbox) checkbox.checked = selected;
     });
   }
@@ -255,12 +255,12 @@ function updateSelectionBulk(urls, selected, source) {
   if (window.SelectionUtils && window.SelectionUtils.updateSelectionDOMBulk) {
     window.SelectionUtils.updateSelectionDOMBulk(urls, selected);
   } else {
-    var urlSet = new Set(urls);
+    const urlSet = new Set(urls);
     document.querySelectorAll('.image-item').forEach(function(item) {
-      var itemUrl = item.dataset.url;
+      const itemUrl = item.dataset.url;
       if (urlSet.has(itemUrl)) {
         item.classList.toggle('selected', selected);
-        var checkbox = item.querySelector('.item-checkbox');
+        const checkbox = item.querySelector('.item-checkbox');
         if (checkbox) checkbox.checked = selected;
       }
     });
@@ -282,7 +282,7 @@ function clearAllSelections() {
   } else {
     document.querySelectorAll('.image-item.selected').forEach(function(item) {
       item.classList.remove('selected');
-      var checkbox = item.querySelector('.item-checkbox');
+      const checkbox = item.querySelector('.item-checkbox');
       if (checkbox) checkbox.checked = false;
     });
   }
@@ -527,7 +527,7 @@ function getUngroupedUrls() {
   if (window.GroupManager && window.GroupManager.getUngroupedUrls) {
     return window.GroupManager.getUngroupedUrls(imageURLs, groups);
   }
-  var groupedUrls = new Set(groups.flatMap(function(g) { return g.urls; }));
+  const groupedUrls = new Set(groups.flatMap(function(g) { return g.urls; }));
   return imageURLs.filter(function(url) { return !groupedUrls.has(url); });
 }
 
@@ -650,8 +650,8 @@ function applyUIScale(scale) {
     return window.ThemeManager.applyUIScale(scale);
   }
   // Fallback
-  var root = document.documentElement;
-  var validScales = ['small', 'medium', 'large'];
+  const root = document.documentElement;
+  const validScales = ['small', 'medium', 'large'];
   root.setAttribute('data-ui-scale', validScales.includes(scale) ? scale : 'medium');
 }
 
@@ -660,8 +660,8 @@ function applyDensity(density) {
     return window.ThemeManager.applyDensity(density);
   }
   // Fallback
-  var root = document.documentElement;
-  var validDensities = ['compact', 'comfortable', 'spacious'];
+  const root = document.documentElement;
+  const validDensities = ['compact', 'comfortable', 'spacious'];
   root.setAttribute('data-density', validDensities.includes(density) ? density : 'comfortable');
 }
 
@@ -670,7 +670,7 @@ function applyTheme(themeId, customOverrides) {
     return window.ThemeManager.applyTheme(themeId, customOverrides);
   }
   // Minimal fallback - just apply preset variables
-  var root = document.documentElement;
+  const root = document.documentElement;
   if (themeId && THEME_PRESETS[themeId]) {
     Object.entries(THEME_PRESETS[themeId].variables).forEach(function(entry) {
       root.style.setProperty(entry[0], entry[1]);
@@ -685,7 +685,7 @@ function validateCustomTheme(jsonStr) {
   // Minimal fallback
   if (!jsonStr || !jsonStr.trim()) return { valid: true, theme: null };
   try {
-    var parsed = JSON.parse(jsonStr);
+    const parsed = JSON.parse(jsonStr);
     if (typeof parsed !== 'object' || Array.isArray(parsed)) {
       return { valid: false, error: 'Theme must be a JSON object' };
     }
@@ -1168,7 +1168,7 @@ function setupPreviewModal() {
   const modal = document.getElementById('preview-modal');
   const closeBtn = document.getElementById('close-preview');
   const filenameInput = document.getElementById('preview-filename-input');
-  var previewOriginalFilename = ''; // Track original to detect changes
+  let previewOriginalFilename = ''; // Track original to detect changes
 
   function saveFilenameAndClose() {
     // Save the filename using centralized updater (syncs to all views)
@@ -1391,7 +1391,7 @@ function buildDownloadList(options) {
     const extSpan = item ? item.querySelector('.filename-extension') : null;
 
     const group = getGroupForUrl(url);
-    var directory = rootDirectory;
+    let directory = rootDirectory;
 
     if (group) {
       const subDir = group.directory || group.name;
@@ -1416,13 +1416,13 @@ function buildDownloadList(options) {
     }
     const existingNames = filenamesByDirectory[directory];
 
-    var filename;
-    var useTemplate = false;
-    var baseName = '';
-    var extension = '';
+    let filename;
+    let useTemplate = false;
+    let baseName = '';
+    let extension = '';
 
     // Get the default filename from URL for comparison
-    var urlFilename = getFilenameFromUrl(url);
+    const urlFilename = getFilenameFromUrl(url);
 
     if (input && document.activeElement === input) {
       // User is actively editing (input is focused) - use their input directly
@@ -1431,7 +1431,7 @@ function buildDownloadList(options) {
     } else if (imageMeta[url] && imageMeta[url].customFilename) {
       // Check if customFilename is actually different from URL default
       // If it matches, treat as if no custom filename (apply template)
-      var customFn = imageMeta[url].customFilename;
+      const customFn = imageMeta[url].customFilename;
       if (customFn === urlFilename) {
         // Not actually custom - apply template
         useTemplate = true;
@@ -1462,7 +1462,7 @@ function buildDownloadList(options) {
 
     // Apply template if needed
     if (useTemplate && settings.filenameTemplate && settings.filenameTemplate !== '{name}') {
-      var groupName = group ? group.name : (settings.ungroupedDirectory || 'Ungrouped');
+      const groupName = group ? group.name : (settings.ungroupedDirectory || 'Ungrouped');
       filename = applyFilenameTemplate(settings.filenameTemplate, {
         name: baseName,
         extension: extension,
@@ -1476,10 +1476,10 @@ function buildDownloadList(options) {
 
     // Make filename unique if needed
     if (existingNames.size > 0) {
-      var extMatch2 = filename.match(/(\.[^.]+)$/);
-      var fnExt = extMatch2 ? extMatch2[1] : '';
-      var fnBase = extMatch2 ? filename.slice(0, -fnExt.length) : filename;
-      var counter = 1;
+      const extMatch2 = filename.match(/(\.[^.]+)$/);
+      const fnExt = extMatch2 ? extMatch2[1] : '';
+      const fnBase = extMatch2 ? filename.slice(0, -fnExt.length) : filename;
+      let counter = 1;
       while (existingNames.has(filename.toLowerCase())) {
         filename = fnBase + '_' + counter + fnExt;
         counter++;
@@ -1501,14 +1501,14 @@ function detectConflicts(downloads) {
     return window.TreeBuilder.detectConflicts(downloads, settings.autoRename);
   }
   // Fallback implementation
-  var pathCounts = {};
+  const pathCounts = {};
   downloads.forEach(function(d) {
-    var fullPath = d.directory ? d.directory + '/' + d.filename : d.filename;
+    const fullPath = d.directory ? d.directory + '/' + d.filename : d.filename;
     pathCounts[fullPath] = (pathCounts[fullPath] || 0) + 1;
   });
   return downloads.map(function(d) {
-    var fullPath = d.directory ? d.directory + '/' + d.filename : d.filename;
-    var hasConflict = pathCounts[fullPath] > 1;
+    const fullPath = d.directory ? d.directory + '/' + d.filename : d.filename;
+    const hasConflict = pathCounts[fullPath] > 1;
     return Object.assign({}, d, {
       hasConflict: hasConflict,
       willRename: d.willRename !== undefined ? d.willRename : (hasConflict ? settings.autoRename : true)
@@ -1521,9 +1521,9 @@ function buildTreeStructure(downloads) {
     return window.TreeBuilder.buildTreeStructure(downloads);
   }
   // Fallback implementation
-  var tree = {};
+  const tree = {};
   downloads.forEach(function(d, index) {
-    var dir = d.directory || '(root)';
+    const dir = d.directory || '(root)';
     if (!tree[dir]) tree[dir] = [];
     tree[dir].push({
       filename: d.filename,
@@ -2999,10 +2999,10 @@ function handleDrop(e) {
   const wasMultiMove = movedUrls.length > 1;
 
   // Capture original locations BEFORE moving (for undo)
-  var originalLocations = {};
+  const originalLocations = {};
   if (wasMultiMove) {
     movedUrls.forEach(function(url) {
-      var group = getGroupForUrl(url);
+      const group = getGroupForUrl(url);
       originalLocations[url] = group ? group.id : null; // null = ungrouped
     });
   }
@@ -3097,10 +3097,10 @@ function showMoveConfirmation(movedUrls, primaryUrl, targetGroupId, originalLoca
 
     // Restore each item to its original group
     othersToUndo.forEach(function(url) {
-      var originalGroupId = originalLocations[url];
+      const originalGroupId = originalLocations[url];
       if (originalGroupId) {
         // Was in a group - add it back
-        var originalGroup = groups.find(function(g) { return g.id === originalGroupId; });
+        const originalGroup = groups.find(function(g) { return g.id === originalGroupId; });
         if (originalGroup && !originalGroup.urls.includes(url)) {
           originalGroup.urls.push(url);
         }
@@ -3733,14 +3733,14 @@ function setupEventListeners(statusDiv) {
 }
 
 function downloadImages(downloads, statusDiv) {
-  var completed = 0;
-  var failed = 0;
+  let completed = 0;
+  let failed = 0;
   const total = downloads.length;
 
   showStatus(statusDiv, 'Downloading 0/' + total + '...', 'info');
 
   downloads.forEach(function(item) {
-    var filePath = item.filename;
+    let filePath = item.filename;
     if (item.directory) {
       const cleanDir = item.directory.replace(/[\/\\]+$/, '');
       filePath = cleanDir + '/' + item.filename;
@@ -3845,10 +3845,10 @@ function setupFloatingTooltips() {
         arrow({ element: tooltipArrow })
       ]
     }).then(function(result) {
-      var x = result.x;
-      var y = result.y;
-      var placement = result.placement;
-      var middlewareData = result.middlewareData;
+      const x = result.x;
+      const y = result.y;
+      const placement = result.placement;
+      const middlewareData = result.middlewareData;
 
       Object.assign(tooltip.style, {
         left: x + 'px',
@@ -3857,10 +3857,10 @@ function setupFloatingTooltips() {
 
       // Position the arrow
       if (middlewareData.arrow) {
-        var arrowX = middlewareData.arrow.x;
-        var arrowY = middlewareData.arrow.y;
+        const arrowX = middlewareData.arrow.x;
+        const arrowY = middlewareData.arrow.y;
 
-        var staticSide = {
+        const staticSide = {
           top: 'bottom',
           right: 'left',
           bottom: 'top',

@@ -13,16 +13,16 @@ function detectConflicts(downloads, autoRenameDefault) {
   autoRenameDefault = autoRenameDefault !== false;
 
   // Count occurrences of each full path
-  var pathCounts = {};
+  const pathCounts = {};
   downloads.forEach(function(d) {
-    var fullPath = d.directory ? d.directory + '/' + d.filename : d.filename;
+    const fullPath = d.directory ? d.directory + '/' + d.filename : d.filename;
     pathCounts[fullPath] = (pathCounts[fullPath] || 0) + 1;
   });
 
   // Mark conflicts
   return downloads.map(function(d) {
-    var fullPath = d.directory ? d.directory + '/' + d.filename : d.filename;
-    var hasConflict = pathCounts[fullPath] > 1;
+    const fullPath = d.directory ? d.directory + '/' + d.filename : d.filename;
+    const hasConflict = pathCounts[fullPath] > 1;
 
     return {
       directory: d.directory,
@@ -45,10 +45,10 @@ function detectConflicts(downloads, autoRenameDefault) {
 function buildTreeStructure(downloads) {
   if (!downloads) return {};
 
-  var tree = {};
+  const tree = {};
 
   downloads.forEach(function(d, index) {
-    var dir = d.directory || '(root)';
+    const dir = d.directory || '(root)';
     if (!tree[dir]) {
       tree[dir] = [];
     }
@@ -79,9 +79,9 @@ function getSortedDirectories(tree) {
  * @returns {{total: number, conflicts: number, willOverwrite: number}}
  */
 function getTreeStats(tree) {
-  var total = 0;
-  var conflicts = 0;
-  var willOverwrite = 0;
+  let total = 0;
+  let conflicts = 0;
+  let willOverwrite = 0;
 
   Object.keys(tree).forEach(function(dir) {
     tree[dir].forEach(function(file) {
@@ -136,7 +136,7 @@ function hasAnyConflicts(downloads) {
 function getUniqueDirectories(downloads) {
   if (!downloads) return [];
 
-  var dirs = new Set();
+  const dirs = new Set();
   downloads.forEach(function(d) {
     if (d.directory) {
       dirs.add(d.directory);
@@ -154,9 +154,9 @@ function getUniqueDirectories(downloads) {
 function groupByDirectory(downloads) {
   if (!downloads) return {};
 
-  var grouped = {};
+  const grouped = {};
   downloads.forEach(function(d) {
-    var dir = d.directory || '';
+    const dir = d.directory || '';
     if (!grouped[dir]) {
       grouped[dir] = [];
     }
@@ -174,7 +174,7 @@ function groupByDirectory(downloads) {
 function splitFilename(filename) {
   if (!filename) return { name: '', extension: '' };
 
-  var match = filename.match(/^(.+?)(\.[^.]+)$/);
+  const match = filename.match(/^(.+?)(\.[^.]+)$/);
   if (match) {
     return { name: match[1], extension: match[2] };
   }

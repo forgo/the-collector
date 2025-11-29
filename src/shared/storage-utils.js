@@ -4,7 +4,7 @@
 /**
  * Storage keys used by the extension
  */
-var STORAGE_KEYS = {
+const STORAGE_KEYS = {
   NAVIGATION_STACK: 'navigationStack',
   GROUPS: 'groups',
   CURRENT_VIEW: 'currentView',
@@ -154,7 +154,7 @@ function saveSettings(settings) {
  */
 function loadSettings(defaults) {
   return storageGet([STORAGE_KEYS.SETTINGS, STORAGE_KEYS.DOWNLOAD_DIRECTORY]).then(function(result) {
-    var settings = Object.assign({}, defaults || {}, result.settings || {});
+    const settings = Object.assign({}, defaults || {}, result.settings || {});
     if (result.downloadDirectory) {
       settings.downloadDirectory = result.downloadDirectory;
     }

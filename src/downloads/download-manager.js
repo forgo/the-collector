@@ -4,7 +4,7 @@
 /**
  * Download state tracking
  */
-var downloadState = {
+const downloadState = {
   isDownloading: false,
   completed: 0,
   failed: 0,
@@ -28,8 +28,8 @@ function resetDownloadState() {
  * @returns {{completed: number, failed: number, total: number, percent: number}}
  */
 function getDownloadProgress() {
-  var done = downloadState.completed + downloadState.failed;
-  var percent = downloadState.total > 0 ? Math.round((done / downloadState.total) * 100) : 0;
+  const done = downloadState.completed + downloadState.failed;
+  const percent = downloadState.total > 0 ? Math.round((done / downloadState.total) * 100) : 0;
 
   return {
     completed: downloadState.completed,
@@ -49,15 +49,15 @@ function getDownloadProgress() {
  */
 function downloadSingle(item) {
   return new Promise(function(resolve) {
-    var filePath = item.filename;
+    let filePath = item.filename;
     if (item.directory) {
-      var cleanDir = item.directory.replace(/[\/\\]+$/, '');
+      const cleanDir = item.directory.replace(/[/\\]+$/, '');
       filePath = cleanDir + '/' + item.filename;
     }
 
     // Determine conflict action based on per-item setting
     // willRename: true = 'uniquify' (auto-rename), false = 'overwrite'
-    var conflictAction = (item.willRename !== false) ? 'uniquify' : 'overwrite';
+    const conflictAction = (item.willRename !== false) ? 'uniquify' : 'overwrite';
 
     chrome.downloads.download({
       url: item.url,
@@ -93,7 +93,7 @@ function downloadSequential(downloads, onProgress) {
   downloadState.isDownloading = true;
   downloadState.total = downloads.length;
 
-  var index = 0;
+  let index = 0;
 
   function processNext() {
     if (index >= downloads.length) {
@@ -105,7 +105,7 @@ function downloadSequential(downloads, onProgress) {
       });
     }
 
-    var item = downloads[index];
+    const item = downloads[index];
     index++;
 
     return downloadSingle(item).then(function(result) {
@@ -143,11 +143,11 @@ function downloadParallel(downloads, onProgress, concurrency) {
   downloadState.isDownloading = true;
   downloadState.total = downloads.length;
 
-  var index = 0;
-  var activeCount = 0;
-  var resolveAll;
+  let index = 0;
+  let activeCount = 0;
+  let resolveAll;
 
-  var promise = new Promise(function(resolve) {
+  const promise = new Promise(function(resolve) {
     resolveAll = resolve;
   });
 
@@ -164,7 +164,7 @@ function downloadParallel(downloads, onProgress, concurrency) {
 
   function processNext() {
     while (activeCount < concurrency && index < downloads.length) {
-      var item = downloads[index];
+      const item = downloads[index];
       index++;
       activeCount++;
 
@@ -205,7 +205,7 @@ function downloadParallel(downloads, onProgress, concurrency) {
  */
 function buildFilePath(directory, filename) {
   if (!directory) return filename;
-  var cleanDir = directory.replace(/[\/\\]+$/, '');
+  const cleanDir = directory.replace(/[/\\]+$/, '');
   return cleanDir + '/' + filename;
 }
 
@@ -230,7 +230,7 @@ function sanitizeDirectoryPath(path) {
  * @returns {number} Total size in bytes, or 0 if unknown
  */
 function calculateTotalSize(downloads) {
-  var total = 0;
+  let total = 0;
   downloads.forEach(function(d) {
     if (d.size && typeof d.size === 'number') {
       total += d.size;
@@ -246,9 +246,9 @@ function calculateTotalSize(downloads) {
  */
 function formatBytes(bytes) {
   if (bytes === 0) return '0 B';
-  var k = 1024;
-  var sizes = ['B', 'KB', 'MB', 'GB'];
-  var i = Math.floor(Math.log(bytes) / Math.log(k));
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
 }
 

@@ -7,10 +7,10 @@
  * @param {boolean} selected - Whether it's now selected
  */
 function updateSelectionDOM(url, selected) {
-  var items = document.querySelectorAll('.image-item[data-url="' + CSS.escape(url) + '"]');
+  const items = document.querySelectorAll('.image-item[data-url="' + CSS.escape(url) + '"]');
   items.forEach(function(item) {
     item.classList.toggle('selected', selected);
-    var checkbox = item.querySelector('.item-checkbox');
+    const checkbox = item.querySelector('.item-checkbox');
     if (checkbox) {
       checkbox.checked = selected;
     }
@@ -24,13 +24,13 @@ function updateSelectionDOM(url, selected) {
  * @param {boolean} selected - Whether they're now selected
  */
 function updateSelectionDOMBulk(urls, selected) {
-  var urlSet = urls instanceof Set ? urls : new Set(urls);
+  const urlSet = urls instanceof Set ? urls : new Set(urls);
 
   document.querySelectorAll('.image-item').forEach(function(item) {
-    var itemUrl = item.dataset.url;
+    const itemUrl = item.dataset.url;
     if (urlSet.has(itemUrl)) {
       item.classList.toggle('selected', selected);
-      var checkbox = item.querySelector('.item-checkbox');
+      const checkbox = item.querySelector('.item-checkbox');
       if (checkbox) {
         checkbox.checked = selected;
       }
@@ -44,7 +44,7 @@ function updateSelectionDOMBulk(urls, selected) {
 function clearSelectionDOM() {
   document.querySelectorAll('.image-item.selected').forEach(function(item) {
     item.classList.remove('selected');
-    var checkbox = item.querySelector('.item-checkbox');
+    const checkbox = item.querySelector('.item-checkbox');
     if (checkbox) {
       checkbox.checked = false;
     }
@@ -60,7 +60,7 @@ function clearSelectionDOM() {
 function getSelectedCountInGroup(selectedUrls, groupUrls) {
   if (!groupUrls || groupUrls.length === 0) return 0;
 
-  var count = 0;
+  let count = 0;
   groupUrls.forEach(function(url) {
     if (selectedUrls.has(url)) count++;
   });
@@ -100,8 +100,8 @@ function isGroupPartiallySelected(selectedUrls, groupUrls) {
  * @returns {{count: number, total: number, allSelected: boolean, noneSelected: boolean}}
  */
 function getSelectionSummary(selectedUrls, allUrls) {
-  var count = selectedUrls.size;
-  var total = allUrls ? allUrls.length : 0;
+  const count = selectedUrls.size;
+  const total = allUrls ? allUrls.length : 0;
 
   return {
     count: count,
@@ -119,9 +119,9 @@ function getSelectionSummary(selectedUrls, allUrls) {
  * @param {number} selectedCount - Currently selected count
  */
 function updateSelectionButtons(selectAllBtn, deselectBtn, totalCount, selectedCount) {
-  var isEmpty = totalCount === 0;
-  var allSelected = totalCount > 0 && selectedCount === totalCount;
-  var noneSelected = selectedCount === 0;
+  const isEmpty = totalCount === 0;
+  const allSelected = totalCount > 0 && selectedCount === totalCount;
+  const noneSelected = selectedCount === 0;
 
   if (selectAllBtn) {
     selectAllBtn.disabled = isEmpty || allSelected;
