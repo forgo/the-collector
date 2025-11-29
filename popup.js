@@ -206,6 +206,7 @@ function updateFilename(url, newName, source) {
  * @param {boolean} selected - Whether the item should be selected
  * @param {string} source - Where the change originated ('list', 'grid', 'checkbox', 'bulk')
  */
+// Selection functions using SelectionUtils module for DOM updates
 function updateSelection(url, selected, source) {
   if (!url) return;
 
@@ -216,15 +217,17 @@ function updateSelection(url, selected, source) {
     selectedUrls.delete(url);
   }
 
-  // 2. Update all DOM elements for this URL (handles both list and grid views)
-  const items = document.querySelectorAll('.image-item[data-url="' + CSS.escape(url) + '"]');
-  items.forEach(function(item) {
-    item.classList.toggle('selected', selected);
-    const checkbox = item.querySelector('.item-checkbox');
-    if (checkbox) {
-      checkbox.checked = selected;
-    }
-  });
+  // 2. Update DOM using SelectionUtils if available
+  if (window.SelectionUtils && window.SelectionUtils.updateSelectionDOM) {
+    window.SelectionUtils.updateSelectionDOM(url, selected);
+  } else {
+    var items = document.querySelectorAll('.image-item[data-url="' + CSS.escape(url) + '"]');
+    items.forEach(function(item) {
+      item.classList.toggle('selected', selected);
+      var checkbox = item.querySelector('.item-checkbox');
+      if (checkbox) checkbox.checked = selected;
+    });
+  }
 
   // 3. Update selection bar and action buttons
   updateSelectionBar();
@@ -248,18 +251,20 @@ function updateSelectionBulk(urls, selected, source) {
     }
   });
 
-  // Batch update DOM - more efficient than individual queries
-  const urlSet = new Set(urls);
-  document.querySelectorAll('.image-item').forEach(function(item) {
-    const itemUrl = item.dataset.url;
-    if (urlSet.has(itemUrl)) {
-      item.classList.toggle('selected', selected);
-      const checkbox = item.querySelector('.item-checkbox');
-      if (checkbox) {
-        checkbox.checked = selected;
+  // Batch update DOM using SelectionUtils if available
+  if (window.SelectionUtils && window.SelectionUtils.updateSelectionDOMBulk) {
+    window.SelectionUtils.updateSelectionDOMBulk(urls, selected);
+  } else {
+    var urlSet = new Set(urls);
+    document.querySelectorAll('.image-item').forEach(function(item) {
+      var itemUrl = item.dataset.url;
+      if (urlSet.has(itemUrl)) {
+        item.classList.toggle('selected', selected);
+        var checkbox = item.querySelector('.item-checkbox');
+        if (checkbox) checkbox.checked = selected;
       }
-    }
-  });
+    });
+  }
 
   // Update UI once after all changes
   updateSelectionBar();
@@ -271,14 +276,16 @@ function updateSelectionBulk(urls, selected, source) {
 function clearAllSelections() {
   selectedUrls.clear();
 
-  // Update all DOM elements
-  document.querySelectorAll('.image-item.selected').forEach(function(item) {
-    item.classList.remove('selected');
-    const checkbox = item.querySelector('.item-checkbox');
-    if (checkbox) {
-      checkbox.checked = false;
-    }
-  });
+  // Update DOM using SelectionUtils if available
+  if (window.SelectionUtils && window.SelectionUtils.clearSelectionDOM) {
+    window.SelectionUtils.clearSelectionDOM();
+  } else {
+    document.querySelectorAll('.image-item.selected').forEach(function(item) {
+      item.classList.remove('selected');
+      var checkbox = item.querySelector('.item-checkbox');
+      if (checkbox) checkbox.checked = false;
+    });
+  }
 
   updateSelectionBar();
 }
@@ -501,17 +508,27 @@ function getFileExtension(url) {
   return ext ? ext.toUpperCase() : 'Unknown';
 }
 
+// Delegate group utilities to GroupManager module
 function generateGroupId() {
+  if (window.GroupManager && window.GroupManager.generateGroupId) {
+    return window.GroupManager.generateGroupId();
+  }
   return 'group_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
 }
 
 function getGroupForUrl(url) {
-  return groups.find(g => g.urls.includes(url));
+  if (window.GroupManager && window.GroupManager.getGroupForUrl) {
+    return window.GroupManager.getGroupForUrl(url, groups);
+  }
+  return groups.find(function(g) { return g.urls.includes(url); });
 }
 
 function getUngroupedUrls() {
-  const groupedUrls = new Set(groups.flatMap(g => g.urls));
-  return imageURLs.filter(url => !groupedUrls.has(url));
+  if (window.GroupManager && window.GroupManager.getUngroupedUrls) {
+    return window.GroupManager.getUngroupedUrls(imageURLs, groups);
+  }
+  var groupedUrls = new Set(groups.flatMap(function(g) { return g.urls; }));
+  return imageURLs.filter(function(url) { return !groupedUrls.has(url); });
 }
 
 // Format dimensions with simple 'x' character
@@ -1478,42 +1495,44 @@ function buildDownloadList(options) {
   return downloads;
 }
 
+// Delegate tree-building utilities to TreeBuilder module
 function detectConflicts(downloads) {
-  const pathCounts = {};
-  downloads.forEach(d => {
-    const fullPath = d.directory ? d.directory + '/' + d.filename : d.filename;
+  if (window.TreeBuilder && window.TreeBuilder.detectConflicts) {
+    return window.TreeBuilder.detectConflicts(downloads, settings.autoRename);
+  }
+  // Fallback implementation
+  var pathCounts = {};
+  downloads.forEach(function(d) {
+    var fullPath = d.directory ? d.directory + '/' + d.filename : d.filename;
     pathCounts[fullPath] = (pathCounts[fullPath] || 0) + 1;
   });
-
-  return downloads.map(d => {
-    const fullPath = d.directory ? d.directory + '/' + d.filename : d.filename;
-    const hasConflict = pathCounts[fullPath] > 1;
-    return {
-      ...d,
+  return downloads.map(function(d) {
+    var fullPath = d.directory ? d.directory + '/' + d.filename : d.filename;
+    var hasConflict = pathCounts[fullPath] > 1;
+    return Object.assign({}, d, {
       hasConflict: hasConflict,
-      // Preserve existing willRename if set, otherwise default based on global setting
       willRename: d.willRename !== undefined ? d.willRename : (hasConflict ? settings.autoRename : true)
-    };
+    });
   });
 }
 
 function buildTreeStructure(downloads) {
-  const tree = {};
-
-  downloads.forEach((d, index) => {
-    const dir = d.directory || '(root)';
-    if (!tree[dir]) {
-      tree[dir] = [];
-    }
+  if (window.TreeBuilder && window.TreeBuilder.buildTreeStructure) {
+    return window.TreeBuilder.buildTreeStructure(downloads);
+  }
+  // Fallback implementation
+  var tree = {};
+  downloads.forEach(function(d, index) {
+    var dir = d.directory || '(root)';
+    if (!tree[dir]) tree[dir] = [];
     tree[dir].push({
       filename: d.filename,
       hasConflict: d.hasConflict,
       url: d.url,
-      index: index,  // Index in pendingDownloads array for updates
-      willRename: d.willRename !== false  // Default to true (auto-rename)
+      index: index,
+      willRename: d.willRename !== false
     });
   });
-
   return tree;
 }
 
