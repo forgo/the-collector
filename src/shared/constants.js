@@ -1,19 +1,27 @@
 // shared/constants.js
-// Centralized constants for the Image Explorer extension
+// Centralized constants for the The Collector extension
 
 /**
  * Supported image file extensions
  * @type {string[]}
  */
-const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+const IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"];
 
 /**
  * Group colors for visual distinction
  * @type {string[]}
  */
 const GROUP_COLORS = [
-  '#1a73e8', '#ea4335', '#34a853', '#fbbc04', '#9c27b0',
-  '#00acc1', '#ff7043', '#8bc34a', '#e91e63', '#3f51b5'
+  "#1a73e8",
+  "#ea4335",
+  "#34a853",
+  "#fbbc04",
+  "#9c27b0",
+  "#00acc1",
+  "#ff7043",
+  "#8bc34a",
+  "#e91e63",
+  "#3f51b5",
 ];
 
 /**
@@ -21,9 +29,9 @@ const GROUP_COLORS = [
  * @type {object}
  */
 const DEFAULT_SETTINGS = {
-  downloadDirectory: '',
-  ungroupedDirectory: '',
-  filenameTemplate: '{name}',
+  downloadDirectory: "",
+  ungroupedDirectory: "",
+  filenameTemplate: "{name}",
   autoRename: false,
   confirmDownload: false,
   listThumbnailSize: 60,
@@ -32,23 +40,23 @@ const DEFAULT_SETTINGS = {
   showFiletype: true,
   clearOnDownload: false,
   rememberGroups: true,
-  theme: 'default',
+  theme: "default",
   customTheme: null,
-  uiScale: 'medium',
-  density: 'comfortable'
+  uiScale: "medium",
+  density: "comfortable",
 };
 
 /**
  * Valid UI scale options
  * @type {string[]}
  */
-const VALID_UI_SCALES = ['small', 'medium', 'large'];
+const VALID_UI_SCALES = ["small", "medium", "large"];
 
 /**
  * Valid density options
  * @type {string[]}
  */
-const VALID_DENSITIES = ['compact', 'comfortable', 'spacious'];
+const VALID_DENSITIES = ["compact", "comfortable", "spacious"];
 
 // Export for use in other modules
 window.Constants = {
@@ -56,5 +64,5 @@ window.Constants = {
   GROUP_COLORS: GROUP_COLORS,
   DEFAULT_SETTINGS: DEFAULT_SETTINGS,
   VALID_UI_SCALES: VALID_UI_SCALES,
-  VALID_DENSITIES: VALID_DENSITIES
+  VALID_DENSITIES: VALID_DENSITIES,
 };

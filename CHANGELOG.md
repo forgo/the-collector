@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Image Explorer will be documented in this file.
+All notable changes to The Collector will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -8,21 +8,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - Integration tests for download flows
 - Firefox browser support
 
 ### Changed
+
 - Performance optimizations for large image collections
 
 ## [1.1.0] - 2024-11-29
 
 ### Added
+
 - Unit test suite with Vitest (174 tests)
 - Chrome API mocks for testing
 - README.md documentation
 - CHANGELOG.md
 
 ### Changed
+
 - Migrated from Manifest V2 to V3
 - Extracted CSS from popup.html to external stylesheets
 - Refactored popup.js into modular architecture:
@@ -33,12 +37,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Background script converted to service worker
 
 ### Fixed
+
 - Download conflict detection for duplicate filenames
 - Theme persistence across sessions
 
 ## [1.0.0] - 2024-11-28
 
 ### Added
+
 - Initial release
 - Image collection from web pages via content script
 - Group management with custom names and colors

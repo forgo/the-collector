@@ -7,7 +7,7 @@
 const storageData = {
   local: {},
   session: {},
-  sync: {}
+  sync: {},
 };
 
 // Create a mock storage area
@@ -15,9 +15,14 @@ function createStorageArea(areaName) {
   return {
     get: (keys, callback) => {
       const result = {};
-      const keyList = typeof keys === 'string' ? [keys] : (Array.isArray(keys) ? keys : Object.keys(keys || storageData[areaName]));
+      const keyList =
+        typeof keys === "string"
+          ? [keys]
+          : Array.isArray(keys)
+          ? keys
+          : Object.keys(keys || storageData[areaName]);
 
-      keyList.forEach(key => {
+      keyList.forEach((key) => {
         if (key in storageData[areaName]) {
           result[key] = storageData[areaName][key];
         }
@@ -38,8 +43,8 @@ function createStorageArea(areaName) {
     },
 
     remove: (keys, callback) => {
-      const keyList = typeof keys === 'string' ? [keys] : keys;
-      keyList.forEach(key => {
+      const keyList = typeof keys === "string" ? [keys] : keys;
+      keyList.forEach((key) => {
         delete storageData[areaName][key];
       });
       if (callback) {
@@ -54,7 +59,7 @@ function createStorageArea(areaName) {
         callback();
       }
       return Promise.resolve();
-    }
+    },
   };
 }
 
@@ -70,7 +75,7 @@ const mockDownloads = {
       url: options.url,
       filename: options.filename,
       conflictAction: options.conflictAction,
-      state: 'complete'
+      state: "complete",
     });
     if (callback) {
       callback(id);
@@ -79,7 +84,7 @@ const mockDownloads = {
   },
 
   search: (query, callback) => {
-    const results = mockDownloads.downloads.filter(d => {
+    const results = mockDownloads.downloads.filter((d) => {
       if (query.id !== undefined && d.id !== query.id) return false;
       if (query.url && d.url !== query.url) return false;
       return true;
@@ -88,7 +93,7 @@ const mockDownloads = {
       callback(results);
     }
     return Promise.resolve(results);
-  }
+  },
 };
 
 // Mock chrome.runtime
@@ -98,9 +103,9 @@ const mockRuntime = {
   getURL: (path) => `chrome-extension://mock-extension-id/${path}`,
 
   getManifest: () => ({
-    name: 'Image Explorer',
-    version: '1.1.0',
-    manifest_version: 3
+    name: "The Collector",
+    version: "1.1.0",
+    manifest_version: 3,
   }),
 
   sendMessage: (message, callback) => {
@@ -112,16 +117,16 @@ const mockRuntime = {
 
   onMessage: {
     addListener: () => {},
-    removeListener: () => {}
+    removeListener: () => {},
   },
 
   onInstalled: {
-    addListener: () => {}
+    addListener: () => {},
   },
 
   onStartup: {
-    addListener: () => {}
-  }
+    addListener: () => {},
+  },
 };
 
 // Mock chrome.tabs
@@ -129,9 +134,11 @@ const mockTabs = {
   tabs: [],
 
   query: (queryInfo, callback) => {
-    const results = mockTabs.tabs.filter(t => {
-      if (queryInfo.active !== undefined && t.active !== queryInfo.active) return false;
-      if (queryInfo.windowId !== undefined && t.windowId !== queryInfo.windowId) return false;
+    const results = mockTabs.tabs.filter((t) => {
+      if (queryInfo.active !== undefined && t.active !== queryInfo.active)
+        return false;
+      if (queryInfo.windowId !== undefined && t.windowId !== queryInfo.windowId)
+        return false;
       return true;
     });
     if (callback) {
@@ -141,7 +148,7 @@ const mockTabs = {
   },
 
   update: (tabId, updateProps, callback) => {
-    const tab = mockTabs.tabs.find(t => t.id === tabId);
+    const tab = mockTabs.tabs.find((t) => t.id === tabId);
     if (tab) {
       Object.assign(tab, updateProps);
     }
@@ -149,7 +156,7 @@ const mockTabs = {
       callback(tab);
     }
     return Promise.resolve(tab);
-  }
+  },
 };
 
 // Mock chrome.windows
@@ -161,7 +168,7 @@ const mockWindows = {
     const win = {
       id: mockWindows.idCounter++,
       ...createData,
-      tabs: [{ id: 1, url: createData.url }]
+      tabs: [{ id: 1, url: createData.url }],
     };
     mockWindows.windows.push(win);
     if (callback) {
@@ -171,7 +178,7 @@ const mockWindows = {
   },
 
   get: (windowId, callback) => {
-    const win = mockWindows.windows.find(w => w.id === windowId);
+    const win = mockWindows.windows.find((w) => w.id === windowId);
     if (callback) {
       callback(win);
     }
@@ -179,7 +186,7 @@ const mockWindows = {
   },
 
   update: (windowId, updateInfo, callback) => {
-    const win = mockWindows.windows.find(w => w.id === windowId);
+    const win = mockWindows.windows.find((w) => w.id === windowId);
     if (win) {
       Object.assign(win, updateInfo);
     }
@@ -190,8 +197,8 @@ const mockWindows = {
   },
 
   onRemoved: {
-    addListener: () => {}
-  }
+    addListener: () => {},
+  },
 };
 
 // Mock chrome.scripting
@@ -201,21 +208,21 @@ const mockScripting = {
       callback([{ result: true }]);
     }
     return Promise.resolve([{ result: true }]);
-  }
+  },
 };
 
 // Assemble the chrome mock object
 export const chrome = {
   storage: {
-    local: createStorageArea('local'),
-    session: createStorageArea('session'),
-    sync: createStorageArea('sync')
+    local: createStorageArea("local"),
+    session: createStorageArea("session"),
+    sync: createStorageArea("sync"),
   },
   downloads: mockDownloads,
   runtime: mockRuntime,
   tabs: mockTabs,
   windows: mockWindows,
-  scripting: mockScripting
+  scripting: mockScripting,
 };
 
 // Helper to reset all mocks between tests

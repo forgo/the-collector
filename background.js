@@ -2,23 +2,25 @@
 // Note: Service workers are ephemeral - don't rely on persistent in-memory state
 
 // Detect browser API (Firefox uses 'browser', Chrome uses 'chrome')
-const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
+const browserAPI = typeof browser !== "undefined" ? browser : chrome;
 
 // Check if session storage is available (Chrome MV3 only)
 const hasSessionStorage = browserAPI.storage && browserAPI.storage.session;
 
 // Fallback storage for Firefox (uses local storage with a prefix)
-const SESSION_KEY_PREFIX = '_session_';
+const SESSION_KEY_PREFIX = "_session_";
 
 // Track active popup window ID
 async function getActivePopupWindowId() {
   if (hasSessionStorage) {
-    const result = await browserAPI.storage.session.get('activePopupWindowId');
+    const result = await browserAPI.storage.session.get("activePopupWindowId");
     return result.activePopupWindowId || null;
   } else {
     // Fallback to local storage for Firefox
-    const result = await browserAPI.storage.local.get(SESSION_KEY_PREFIX + 'activePopupWindowId');
-    return result[SESSION_KEY_PREFIX + 'activePopupWindowId'] || null;
+    const result = await browserAPI.storage.local.get(
+      SESSION_KEY_PREFIX + "activePopupWindowId"
+    );
+    return result[SESSION_KEY_PREFIX + "activePopupWindowId"] || null;
   }
 }
 
@@ -27,16 +29,18 @@ async function setActivePopupWindowId(windowId) {
     await browserAPI.storage.session.set({ activePopupWindowId: windowId });
   } else {
     const data = {};
-    data[SESSION_KEY_PREFIX + 'activePopupWindowId'] = windowId;
+    data[SESSION_KEY_PREFIX + "activePopupWindowId"] = windowId;
     await browserAPI.storage.local.set(data);
   }
 }
 
 async function clearActivePopupWindowId() {
   if (hasSessionStorage) {
-    await browserAPI.storage.session.remove('activePopupWindowId');
+    await browserAPI.storage.session.remove("activePopupWindowId");
   } else {
-    await browserAPI.storage.local.remove(SESSION_KEY_PREFIX + 'activePopupWindowId');
+    await browserAPI.storage.local.remove(
+      SESSION_KEY_PREFIX + "activePopupWindowId"
+    );
   }
 }
 
@@ -49,22 +53,27 @@ browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 async function handleMessage(request, sender) {
   switch (request.action) {
-    case 'openPopup':
+    case "openPopup":
       return handleOpenPopup(request);
 
-    case 'openDirectoryPicker':
+    case "openDirectoryPicker":
       // Browser extensions can't use native directory picker directly
-      return { error: 'Directory picker not available in extensions. Use the text input.' };
+      return {
+        error:
+          "Directory picker not available in extensions. Use the text input.",
+      };
 
-    case 'setDownloadDirectory':
-      await browserAPI.storage.local.set({ downloadDirectory: request.directory });
+    case "setDownloadDirectory":
+      await browserAPI.storage.local.set({
+        downloadDirectory: request.directory,
+      });
       return { success: true };
 
-    case 'openInWindow':
+    case "openInWindow":
       return handleOpenInWindow();
 
     default:
-      return { error: 'Unknown action' };
+      return { error: "Unknown action" };
   }
 }
 
@@ -93,9 +102,9 @@ async function handleOpenPopup(request) {
   // Create new popup window
   const newWindow = await browserAPI.windows.create({
     url: request.url,
-    type: 'popup',
+    type: "popup",
     width: 800,
-    height: 600
+    height: 600,
   });
 
   await setActivePopupWindowId(newWindow.id);
@@ -105,10 +114,10 @@ async function handleOpenPopup(request) {
     try {
       await browserAPI.scripting.executeScript({
         target: { tabId: newWindow.tabs[0].id },
-        files: ['content.js']
+        files: ["content.js"],
       });
     } catch (e) {
-      console.warn('Could not inject content script:', e.message);
+      console.warn("Could not inject content script:", e.message);
     }
   }
 
@@ -117,10 +126,10 @@ async function handleOpenPopup(request) {
 
 async function handleOpenInWindow() {
   const newWindow = await browserAPI.windows.create({
-    url: browserAPI.runtime.getURL('popup.html'),
-    type: 'popup',
+    url: browserAPI.runtime.getURL("popup.html"),
+    type: "popup",
     width: 700,
-    height: 800
+    height: 800,
   });
 
   return { success: true, windowId: newWindow.id };
@@ -138,18 +147,21 @@ browserAPI.windows.onRemoved.addListener(async (windowId) => {
 browserAPI.runtime.onStartup.addListener(async () => {
   try {
     // Remove old/stale keys (including legacy 'imageUrls' and current 'navigationStack')
-    await browserAPI.storage.local.remove(['imageUrls', 'navigationStack']);
-    console.log('Storage cleaned up on startup.');
+    await browserAPI.storage.local.remove(["imageUrls", "navigationStack"]);
+    console.log("Storage cleaned up on startup.");
   } catch (e) {
-    console.error('Error removing storage keys:', e);
+    console.error("Error removing storage keys:", e);
   }
 });
 
 // Handle extension installation/update
 browserAPI.runtime.onInstalled.addListener((details) => {
-  if (details.reason === 'install') {
-    console.log('Image Explorer installed');
-  } else if (details.reason === 'update') {
-    console.log('Image Explorer updated to version', browserAPI.runtime.getManifest().version);
+  if (details.reason === "install") {
+    console.log("The Collector installed");
+  } else if (details.reason === "update") {
+    console.log(
+      "The Collector updated to version",
+      browserAPI.runtime.getManifest().version
+    );
   }
 });

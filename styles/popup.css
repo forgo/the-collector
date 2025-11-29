@@ -1,9 +1,9 @@
-/* popup.css - Main stylesheet for Image Explorer popup */
+/* popup.css - Main stylesheet for The Collector popup */
 
 /* Import all component stylesheets in correct order */
-@import 'variables.css';
-@import 'components.css';
-@import 'layout.css';
-@import 'groups.css';
-@import 'drag-drop.css';
-@import 'modals.css';
+@import "variables.css";
+@import "components.css";
+@import "layout.css";
+@import "groups.css";
+@import "drag-drop.css";
+@import "modals.css";

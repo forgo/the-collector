@@ -1,4 +1,4 @@
-# Image Explorer
+# The Collector
 
 > Browser extension for collecting, organizing, and batch-downloading images from web pages
 
@@ -32,7 +32,7 @@ Coming soon.
 ### Collecting Images
 
 1. Navigate to any webpage with images
-2. Click the Image Explorer extension icon
+2. Click the The Collector extension icon
 3. Images from the page are automatically collected
 4. Use the search/filter to find specific images
 
@@ -53,16 +53,16 @@ Coming soon.
 
 Customize filenames using these tokens:
 
-| Token | Description | Example |
-|-------|-------------|---------|
-| `{name}` | Original filename | `photo` |
+| Token     | Description       | Example       |
+| --------- | ----------------- | ------------- |
+| `{name}`  | Original filename | `photo`       |
 | `{index}` | Sequential number | `1`, `2`, `3` |
-| `{group}` | Group name | `Vacation` |
-| `{date}` | Date (YYYY-MM-DD) | `2024-01-15` |
-| `{time}` | Time (hh-mm-ss) | `14-30-45` |
-| `{YYYY}` | 4-digit year | `2024` |
-| `{MM}` | 2-digit month | `01` |
-| `{DD}` | 2-digit day | `15` |
+| `{group}` | Group name        | `Vacation`    |
+| `{date}`  | Date (YYYY-MM-DD) | `2024-01-15`  |
+| `{time}`  | Time (hh-mm-ss)   | `14-30-45`    |
+| `{YYYY}`  | 4-digit year      | `2024`        |
+| `{MM}`    | 2-digit month     | `01`          |
+| `{DD}`    | 2-digit day       | `15`          |
 
 Example: `{group}_{date}_{index}` produces `Vacation_2024-01-15_1.jpg`
 

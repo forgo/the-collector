@@ -1,8 +1,8 @@
-# Image Explorer Extension - Refactoring & Audit Prompt
+# The Collector Extension - Refactoring & Audit Prompt
 
 ## Project Overview
 
-**Extension Name:** Image Explorer
+**Extension Name:** The Collector
 **Current Version:** 1.0
 **Manifest Version:** 2 (requires migration to v3)
 **Primary Purpose:** Browser extension for collecting, organizing, and batch-downloading images from web pages
@@ -245,7 +245,7 @@
 #### README.md Structure
 
 ```markdown
-# Image Explorer
+# The Collector
 
 > Browser extension for collecting, organizing, and batch-downloading images
 
