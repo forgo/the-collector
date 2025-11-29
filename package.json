@@ -1,0 +1,20 @@
+{
+  "name": "image-explorer",
+  "version": "1.1.0",
+  "description": "Browser extension for collecting, organizing, and batch-downloading images from web pages",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "vitest": "^2.1.0"
+  },
+  "keywords": [
+    "browser-extension",
+    "chrome-extension",
+    "image-downloader"
+  ],
+  "license": "MIT"
+}
