@@ -1,0 +1,9 @@
+/* popup.css - Main stylesheet for Image Explorer popup */
+
+/* Import all component stylesheets in correct order */
+@import url('variables.css');
+@import url('components.css');
+@import url('layout.css');
+@import url('groups.css');
+@import url('drag-drop.css');
+@import url('modals.css');

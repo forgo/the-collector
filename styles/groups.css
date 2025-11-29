@@ -1,0 +1,475 @@
+/* groups.css - Group section and image item styles */
+
+/* ============================================
+   Groups Container
+   ============================================ */
+
+.groups-container {
+  margin-bottom: 12px;
+}
+
+.group-section {
+  margin-bottom: 12px;
+  border: 2px dashed transparent;
+  border-radius: 8px;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.group-section.drag-over {
+  border-color: var(--color-primary);
+  background: var(--bg-item-selected);
+}
+
+.group-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--bg-group-header);
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.group-header .group-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.group-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.group-info-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.group-header .group-name {
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  background: transparent;
+  padding: 2px 4px;
+  margin: -2px -4px;
+  color: var(--text-primary);
+  min-width: 60px;
+  max-width: 150px;
+}
+
+.group-header .group-name:focus {
+  outline: none;
+  background: var(--bg-input);
+  border-radius: 2px;
+}
+
+.group-header .group-count {
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.group-path {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Path edit buttons now use icon-btn--ghost, just need smaller sizing */
+.group-path-edit.icon-btn--sm {
+  width: 18px;
+  height: 18px;
+}
+
+/* Group actions now use btn-group and icon-btn classes */
+.group-header .group-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.group-header .group-delete-btn {
+  margin-left: 4px;
+}
+
+.group-images {
+  min-height: 40px;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.group-images.empty,
+.image-list.empty {
+  border: 2px dashed var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 11px;
+  min-height: 60px;
+  border-radius: 6px;
+}
+
+/* When dragging into an empty list, switch to grid layout and hide placeholder text */
+.group-images.empty.drag-over,
+.image-list.empty.drag-over {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--thumb-size), 1fr));
+  gap: var(--grid-gap);
+  justify-content: start;
+  align-items: start;
+  font-size: 0; /* Hide the "Drag images here" text by making it zero-size */
+  color: transparent;
+}
+
+/* Ensure the ghost inside empty list displays correctly */
+.group-images.empty.drag-over .drop-ghost,
+.image-list.empty.drag-over .drop-ghost {
+  font-size: 12px; /* Reset font size for ghost content */
+}
+
+/* ============================================
+   Ungrouped Section
+   ============================================ */
+
+.ungrouped-section {
+  margin-top: 12px;
+  border: 2px dashed transparent;
+  border-radius: 8px;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.ungrouped-section.drag-over {
+  border-color: var(--color-primary);
+  background: var(--bg-item-selected);
+}
+
+.ungrouped-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--bg-group-header);
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.ungrouped-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ungrouped-info-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ungrouped-header .ungrouped-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.ungrouped-header .ungrouped-count {
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.ungrouped-path {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Ungrouped actions now use btn-group and icon-btn classes */
+.ungrouped-actions {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* ============================================
+   Image List (common)
+   ============================================ */
+
+.image-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* ============================================
+   List View
+   ============================================ */
+
+.image-list.list-view .image-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+  background: var(--bg-item);
+  border-radius: var(--radius-lg);
+  border: var(--item-border-width) solid transparent;
+  cursor: grab;
+}
+
+.image-list.list-view .image-item:active {
+  cursor: grabbing;
+}
+
+.image-list.list-view .image-item.selected {
+  border-color: var(--item-border-selected);
+  background: var(--bg-item-selected);
+}
+
+.image-list.list-view .image-item.dragging {
+  display: none;
+}
+
+.image-list.list-view .img-container {
+  /* Width/height set dynamically via JS based on thumbnail size setting */
+  flex-shrink: 0;
+  background: var(--bg-item-hover);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.image-list.list-view .item-details {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.image-list.list-view .filename-edit {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: 100%;
+}
+
+.image-list.list-view .filename-input {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 6px;
+  padding-right: 2px;
+  border: 1px solid var(--border-color);
+  border-right: none;
+  border-radius: 4px 0 0 4px;
+  font-size: 11px;
+  background: var(--bg-input);
+  color: var(--text-primary);
+}
+
+.image-list.list-view .filename-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.image-list.list-view .filename-extension {
+  padding: 4px 6px;
+  padding-left: 2px;
+  border: 1px solid var(--border-color);
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  font-size: 11px;
+  background: var(--bg-group-header);
+  color: var(--text-muted);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.image-list.list-view .filename-input:focus + .filename-extension {
+  border-color: var(--color-primary);
+}
+
+.image-list.list-view .image-meta {
+  font-size: 10px;
+  color: var(--text-muted);
+  display: flex;
+  gap: 8px;
+}
+
+.image-list.list-view .image-meta .dimensions {
+  color: var(--color-secondary);
+  font-weight: 500;
+}
+
+/* ============================================
+   Grid View
+   ============================================ */
+
+.image-list.grid-view {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.image-list.grid-view .image-item {
+  position: relative;
+  background: var(--bg-item);
+  border-radius: 6px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  cursor: grab;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  /* Width set dynamically via JS based on grid thumbnail size setting */
+}
+
+.image-list.grid-view .image-item:active {
+  cursor: grabbing;
+}
+
+.image-list.grid-view .image-item.selected {
+  border-color: var(--item-border-selected);
+}
+
+.image-list.grid-view .image-item.dragging {
+  display: none;
+}
+
+.image-list.grid-view .img-container {
+  width: 100%;
+  aspect-ratio: 1;
+  background: var(--bg-item-hover);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Hide filename input and details in grid view - edit via preview modal */
+.image-list.grid-view .item-details {
+  display: none;
+}
+
+/* Grid view: actions below image in fixed height bar */
+.image-list.grid-view .item-actions {
+  position: static;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 6px;
+  background: var(--bg-group-header);
+  border-top: 1px solid var(--border-color);
+  gap: 4px;
+}
+
+/* Put checkbox on left, buttons on right in grid view */
+.image-list.grid-view .item-actions .item-checkbox {
+  margin-right: auto;
+}
+
+.image-list.grid-view .item-checkbox {
+  width: 14px;
+  height: 14px;
+}
+
+.image-list.grid-view .item-actions .icon-btn {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+  padding: 2px;
+}
+
+.image-list.grid-view .item-actions .icon-btn .icon {
+  width: 12px;
+  height: 12px;
+}
+
+/* ============================================
+   Common Image Styles
+   ============================================ */
+
+.img-container img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+}
+
+/* Item actions area (checkbox + download + remove) */
+.item-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.item-actions .icon-btn {
+  flex-shrink: 0;
+}
+
+/* Preview trigger (magnifying glass) */
+.preview-trigger {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
+  font-size: 12px;
+  z-index: 10;
+}
+
+.img-container:hover .preview-trigger {
+  opacity: 1;
+}
+
+/* ============================================
+   Animation for newly added items
+   ============================================ */
+
+@keyframes newItemPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 var(--color-success);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 4px rgba(39, 174, 96, 0.3);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.image-item.newly-added {
+  animation: newItemPulse 0.6s ease-out 2;
+  border-color: var(--color-success) !important;
+}
