@@ -1,16 +1,20 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Image Explorer",
-  "version": "1.0",
+  "version": "1.1",
+  "description": "Collect, organize, and batch-download images from web pages",
   "permissions": [
     "storage",
     "activeTab",
     "tabs",
-    "downloads"
+    "downloads",
+    "scripting"
+  ],
+  "host_permissions": [
+    "<all_urls>"
   ],
   "background": {
-    "scripts": ["background.js"],
-    "persistent": false
+    "service_worker": "background.js"
   },
   "content_scripts": [
     {
@@ -18,7 +22,7 @@
       "js": ["content.js"]
     }
   ],
-  "browser_action": {
+  "action": {
     "default_popup": "popup.html",
     "default_icon": {
       "16": "icons/icon16.png",

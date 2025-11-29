@@ -1,68 +1,131 @@
-// background.js
-let activePopupWindow = null;  // Track the active popup window
+// background.js - Service Worker for Manifest V3
+// Note: Service workers are ephemeral - don't rely on persistent in-memory state
 
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-  if (request.action === 'openPopup') {
-    // Only open a new popup if one doesn't exist
-    if (activePopupWindow) {
-      // If a popup is already open, focus on it and navigate to the new link
-      chrome.windows.update(activePopupWindow.id, { focused: true });
-      chrome.tabs.update(activePopupWindow.tabs[0].id, { url: request.url });
-    } else {
-      // Otherwise, create a new popup
-      chrome.windows.create({
-        url: request.url,
-        type: 'popup',
-        width: 800,
-        height: 600
-      }, function(newWindow) {
-        activePopupWindow = newWindow;  // Store the new popup window ID
-        // Inject content.js into the new popup window's tab
-        chrome.tabs.executeScript(newWindow.tabs[0].id, { file: 'content.js' });
-      });
-    }
-  }
+// Use chrome.storage.session for temporary state (persists across service worker restarts but not browser restarts)
+// Track active popup window ID
+async function getActivePopupWindowId() {
+  const result = await chrome.storage.session.get('activePopupWindowId');
+  return result.activePopupWindowId || null;
+}
+
+async function setActivePopupWindowId(windowId) {
+  await chrome.storage.session.set({ activePopupWindowId: windowId });
+}
+
+async function clearActivePopupWindowId() {
+  await chrome.storage.session.remove('activePopupWindowId');
+}
+
+// Handle messages from content scripts and popup
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  // Use async handler pattern for Manifest V3
+  handleMessage(request, sender).then(sendResponse);
+  return true; // Indicates we will respond asynchronously
 });
 
-chrome.windows.onRemoved.addListener(function(windowId) {
-  // Reset the active popup window when it's closed
-  if (activePopupWindow && activePopupWindow.id === windowId) {
-    activePopupWindow = null;
+async function handleMessage(request, sender) {
+  switch (request.action) {
+    case 'openPopup':
+      return handleOpenPopup(request);
+
+    case 'openDirectoryPicker':
+      // Browser extensions can't use native directory picker directly
+      return { error: 'Directory picker not available in extensions. Use the text input.' };
+
+    case 'setDownloadDirectory':
+      await chrome.storage.local.set({ downloadDirectory: request.directory });
+      return { success: true };
+
+    case 'openInWindow':
+      return handleOpenInWindow();
+
+    default:
+      return { error: 'Unknown action' };
+  }
+}
+
+async function handleOpenPopup(request) {
+  const activeWindowId = await getActivePopupWindowId();
+
+  if (activeWindowId) {
+    try {
+      // Check if window still exists
+      const existingWindow = await chrome.windows.get(activeWindowId);
+      if (existingWindow) {
+        // Focus existing window and update URL
+        await chrome.windows.update(activeWindowId, { focused: true });
+        const tabs = await chrome.tabs.query({ windowId: activeWindowId });
+        if (tabs.length > 0) {
+          await chrome.tabs.update(tabs[0].id, { url: request.url });
+        }
+        return { success: true, windowId: activeWindowId };
+      }
+    } catch (e) {
+      // Window no longer exists, clear the stored ID
+      await clearActivePopupWindowId();
+    }
+  }
+
+  // Create new popup window
+  const newWindow = await chrome.windows.create({
+    url: request.url,
+    type: 'popup',
+    width: 800,
+    height: 600
+  });
+
+  await setActivePopupWindowId(newWindow.id);
+
+  // Inject content script using Manifest V3 API
+  if (newWindow.tabs && newWindow.tabs.length > 0) {
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId: newWindow.tabs[0].id },
+        files: ['content.js']
+      });
+    } catch (e) {
+      console.warn('Could not inject content script:', e.message);
+    }
+  }
+
+  return { success: true, windowId: newWindow.id };
+}
+
+async function handleOpenInWindow() {
+  const newWindow = await chrome.windows.create({
+    url: chrome.runtime.getURL('popup.html'),
+    type: 'popup',
+    width: 700,
+    height: 800
+  });
+
+  return { success: true, windowId: newWindow.id };
+}
+
+// Clean up stored window ID when window is closed
+chrome.windows.onRemoved.addListener(async (windowId) => {
+  const activeWindowId = await getActivePopupWindowId();
+  if (activeWindowId === windowId) {
+    await clearActivePopupWindowId();
   }
 });
 
 // Clean up stale storage on extension startup
-chrome.runtime.onStartup.addListener(() => {
-  // Remove old/stale keys (including legacy 'imageUrls' and current 'navigationStack')
-  chrome.storage.local.remove(['imageUrls', 'navigationStack'], function() {
-    if (chrome.runtime.lastError) {
-      console.error('Error removing storage keys:', chrome.runtime.lastError);
-    } else {
-      console.log('Storage cleaned up on startup.');
-    }
-  });
+chrome.runtime.onStartup.addListener(async () => {
+  try {
+    // Remove old/stale keys (including legacy 'imageUrls' and current 'navigationStack')
+    await chrome.storage.local.remove(['imageUrls', 'navigationStack']);
+    console.log('Storage cleaned up on startup.');
+  } catch (e) {
+    console.error('Error removing storage keys:', e);
+  }
 });
 
-// Handle messages from popup
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-  if (request.action === 'openDirectoryPicker') {
-    // Browser extensions can't use native directory picker directly
-    sendResponse({ error: 'Directory picker not available in extensions. Use the text input.' });
-  } else if (request.action === 'setDownloadDirectory') {
-    chrome.storage.local.set({ downloadDirectory: request.directory }, function() {
-      sendResponse({ success: true });
-    });
-    return true;
-  } else if (request.action === 'openInWindow') {
-    // Open the popup as a standalone window
-    chrome.windows.create({
-      url: chrome.runtime.getURL('popup.html'),
-      type: 'popup',
-      width: 700,
-      height: 800
-    }, function(newWindow) {
-      sendResponse({ success: true, windowId: newWindow.id });
-    });
-    return true;
+// Handle extension installation/update
+chrome.runtime.onInstalled.addListener((details) => {
+  if (details.reason === 'install') {
+    console.log('Image Explorer installed');
+  } else if (details.reason === 'update') {
+    console.log('Image Explorer updated to version', chrome.runtime.getManifest().version);
   }
 });
