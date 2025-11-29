@@ -3057,8 +3057,16 @@
     <!-- Floating UI for smart tooltip positioning -->
     <script src="https://cdn.jsdelivr.net/npm/@floating-ui/core@1.7.3"></script>
     <script src="https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.7.4"></script>
+
+    <!-- Modular JS - order matters: dependencies first -->
+    <script src="src/shared/constants.js"></script>
+    <script src="src/shared/url-utils.js"></script>
+    <script src="src/downloads/filename-utils.js"></script>
+    <script src="src/settings/theme-manager.js"></script>
+
     <!-- Icon system -->
     <script src="icons.js"></script>
+    <!-- Main popup logic -->
     <script src="popup.js"></script>
   </body>
 </html>

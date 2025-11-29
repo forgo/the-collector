@@ -1,248 +1,12 @@
 // popup.js
+// Main popup logic for Image Explorer extension
+// Depends on: Constants, UrlUtils, FilenameUtils, ThemeManager (loaded before this file)
 
-// Supported image extensions
-const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
-
-// Group colors for visual distinction
-const GROUP_COLORS = [
-  '#1a73e8', '#ea4335', '#34a853', '#fbbc04', '#9c27b0',
-  '#00acc1', '#ff7043', '#8bc34a', '#e91e63', '#3f51b5'
-];
-
-// Built-in theme presets
-const THEME_PRESETS = {
-  'default': {
-    name: 'Default Light',
-    variables: {} // Uses CSS defaults
-  },
-  'dark': {
-    name: 'Dark',
-    variables: {
-      '--color-primary': '#64b5f6',
-      '--color-primary-hover': '#42a5f5',
-      '--color-primary-light': '#1e3a5f',
-      '--color-secondary': '#64b5f6',
-      '--color-secondary-hover': '#42a5f5',
-      '--bg-body': '#1e1e1e',
-      '--bg-header': '#252526',
-      '--bg-content': '#1e1e1e',
-      '--bg-item': '#2d2d2d',
-      '--bg-item-hover': '#3c3c3c',
-      '--bg-item-selected': '#264f78',
-      '--bg-input': '#3c3c3c',
-      '--bg-group-header': '#252526',
-      '--text-primary': '#cccccc',
-      '--text-secondary': '#9d9d9d',
-      '--text-muted': '#6d6d6d',
-      '--text-link': '#64b5f6',
-      '--border-color': '#3c3c3c',
-      '--border-color-focus': '#64b5f6',
-      '--border-selection': '#64b5f6',
-      '--tab-bg-active': '#1e1e1e',
-      '--tab-text': '#9d9d9d',
-      '--tab-text-active': '#64b5f6',
-      '--tab-border-active': '#64b5f6',
-      '--item-border-selected': '#64b5f6'
-    }
-  },
-  'dracula': {
-    name: 'Dracula',
-    variables: {
-      '--color-primary': '#bd93f9',
-      '--color-primary-hover': '#a77bdb',
-      '--color-primary-light': '#44475a',
-      '--color-secondary': '#bd93f9',
-      '--color-secondary-hover': '#a77bdb',
-      '--color-danger': '#ff5555',
-      '--color-danger-hover': '#ff3333',
-      '--color-success': '#50fa7b',
-      '--color-success-hover': '#3de068',
-      '--bg-body': '#282a36',
-      '--bg-header': '#21222c',
-      '--bg-content': '#282a36',
-      '--bg-item': '#44475a',
-      '--bg-item-hover': '#545775',
-      '--bg-item-selected': '#44475a',
-      '--bg-input': '#44475a',
-      '--bg-group-header': '#21222c',
-      '--text-primary': '#f8f8f2',
-      '--text-secondary': '#c0c0c0',
-      '--text-muted': '#6272a4',
-      '--text-link': '#8be9fd',
-      '--border-color': '#44475a',
-      '--border-color-focus': '#bd93f9',
-      '--border-selection': '#ff79c6',
-      '--btn-primary-bg': '#bd93f9',
-      '--btn-primary-hover': '#a77bdb',
-      '--btn-danger-bg': '#ff5555',
-      '--btn-danger-hover': '#ff3333',
-      '--btn-success-bg': '#50fa7b',
-      '--btn-success-hover': '#3de068',
-      '--btn-success-text': '#282a36',
-      '--tab-bg-active': '#282a36',
-      '--tab-text': '#6272a4',
-      '--tab-text-active': '#bd93f9',
-      '--tab-border-active': '#bd93f9',
-      '--item-border-selected': '#ff79c6'
-    }
-  },
-  'nord': {
-    name: 'Nord',
-    variables: {
-      '--color-primary': '#88c0d0',
-      '--color-primary-hover': '#81a1c1',
-      '--color-primary-light': '#3b4252',
-      '--color-secondary': '#88c0d0',
-      '--color-secondary-hover': '#81a1c1',
-      '--color-danger': '#bf616a',
-      '--color-danger-hover': '#a54e56',
-      '--color-success': '#a3be8c',
-      '--color-success-hover': '#8fbf6f',
-      '--bg-body': '#2e3440',
-      '--bg-header': '#3b4252',
-      '--bg-content': '#2e3440',
-      '--bg-item': '#3b4252',
-      '--bg-item-hover': '#434c5e',
-      '--bg-item-selected': '#4c566a',
-      '--bg-input': '#3b4252',
-      '--bg-group-header': '#3b4252',
-      '--text-primary': '#eceff4',
-      '--text-secondary': '#d8dee9',
-      '--text-muted': '#7b88a1',
-      '--text-link': '#88c0d0',
-      '--border-color': '#4c566a',
-      '--border-color-focus': '#88c0d0',
-      '--border-selection': '#88c0d0',
-      '--btn-primary-bg': '#5e81ac',
-      '--btn-primary-hover': '#81a1c1',
-      '--btn-danger-bg': '#bf616a',
-      '--btn-success-bg': '#a3be8c',
-      '--tab-bg-active': '#2e3440',
-      '--tab-text': '#7b88a1',
-      '--tab-text-active': '#88c0d0',
-      '--tab-border-active': '#88c0d0',
-      '--item-border-selected': '#88c0d0'
-    }
-  },
-  'solarized-dark': {
-    name: 'Solarized Dark',
-    variables: {
-      '--color-primary': '#268bd2',
-      '--color-primary-hover': '#1e6fa8',
-      '--color-primary-light': '#073642',
-      '--color-secondary': '#268bd2',
-      '--color-danger': '#dc322f',
-      '--color-success': '#859900',
-      '--bg-body': '#002b36',
-      '--bg-header': '#073642',
-      '--bg-content': '#002b36',
-      '--bg-item': '#073642',
-      '--bg-item-hover': '#0a4050',
-      '--bg-item-selected': '#0d5166',
-      '--bg-input': '#073642',
-      '--bg-group-header': '#073642',
-      '--text-primary': '#839496',
-      '--text-secondary': '#657b83',
-      '--text-muted': '#586e75',
-      '--text-link': '#2aa198',
-      '--border-color': '#0a4050',
-      '--border-color-focus': '#268bd2',
-      '--border-selection': '#268bd2',
-      '--tab-bg-active': '#002b36',
-      '--tab-text': '#657b83',
-      '--tab-text-active': '#268bd2',
-      '--tab-border-active': '#268bd2',
-      '--item-border-selected': '#268bd2'
-    }
-  },
-  'monokai': {
-    name: 'Monokai',
-    variables: {
-      '--color-primary': '#66d9ef',
-      '--color-primary-hover': '#52b8cc',
-      '--color-primary-light': '#3e3d32',
-      '--color-secondary': '#66d9ef',
-      '--color-danger': '#f92672',
-      '--color-success': '#a6e22e',
-      '--bg-body': '#272822',
-      '--bg-header': '#1e1f1c',
-      '--bg-content': '#272822',
-      '--bg-item': '#3e3d32',
-      '--bg-item-hover': '#49483e',
-      '--bg-item-selected': '#49483e',
-      '--bg-input': '#3e3d32',
-      '--bg-group-header': '#1e1f1c',
-      '--text-primary': '#f8f8f2',
-      '--text-secondary': '#cfcfc2',
-      '--text-muted': '#75715e',
-      '--text-link': '#66d9ef',
-      '--border-color': '#49483e',
-      '--border-color-focus': '#66d9ef',
-      '--border-selection': '#f92672',
-      '--btn-primary-bg': '#66d9ef',
-      '--btn-primary-text': '#272822',
-      '--btn-danger-bg': '#f92672',
-      '--btn-success-bg': '#a6e22e',
-      '--btn-success-text': '#272822',
-      '--tab-bg-active': '#272822',
-      '--tab-text': '#75715e',
-      '--tab-text-active': '#66d9ef',
-      '--tab-border-active': '#66d9ef',
-      '--item-border-selected': '#f92672'
-    }
-  },
-  'github-light': {
-    name: 'GitHub Light',
-    variables: {
-      '--color-primary': '#0969da',
-      '--color-primary-hover': '#0550ae',
-      '--color-primary-light': '#ddf4ff',
-      '--color-secondary': '#0969da',
-      '--color-danger': '#cf222e',
-      '--color-success': '#1a7f37',
-      '--bg-body': '#ffffff',
-      '--bg-header': '#f6f8fa',
-      '--bg-content': '#ffffff',
-      '--bg-item': '#f6f8fa',
-      '--bg-item-hover': '#eaeef2',
-      '--bg-item-selected': '#ddf4ff',
-      '--bg-input': '#ffffff',
-      '--bg-group-header': '#f6f8fa',
-      '--text-primary': '#24292f',
-      '--text-secondary': '#57606a',
-      '--text-muted': '#8c959f',
-      '--text-link': '#0969da',
-      '--border-color': '#d0d7de',
-      '--border-color-focus': '#0969da',
-      '--border-selection': '#0969da',
-      '--btn-primary-bg': '#2da44e',
-      '--btn-danger-bg': '#cf222e',
-      '--btn-success-bg': '#2da44e',
-      '--tab-text': '#57606a',
-      '--tab-text-active': '#0969da',
-      '--tab-border-active': '#fd8c73',
-      '--item-border-selected': '#0969da'
-    }
-  }
-};
-
-// Theme schema for documentation/validation
-const THEME_SCHEMA = {
-  description: 'Theme customization schema for Image Explorer',
-  properties: {
-    'Base Colors': ['--color-primary', '--color-primary-hover', '--color-primary-light', '--color-secondary', '--color-secondary-hover', '--color-danger', '--color-danger-hover', '--color-success', '--color-success-hover', '--color-warning'],
-    'Background Colors': ['--bg-body', '--bg-header', '--bg-content', '--bg-item', '--bg-item-hover', '--bg-item-selected', '--bg-input', '--bg-group-header', '--bg-modal-overlay', '--bg-tooltip'],
-    'Text Colors': ['--text-primary', '--text-secondary', '--text-muted', '--text-inverse', '--text-link'],
-    'Border Colors': ['--border-color', '--border-color-focus', '--border-selection'],
-    'Border Radius': ['--radius-sm', '--radius-md', '--radius-lg', '--radius-xl', '--radius-round'],
-    'Spacing': ['--spacing-xs', '--spacing-sm', '--spacing-md', '--spacing-lg', '--spacing-xl'],
-    'Font Settings': ['--font-family', '--font-size-xs', '--font-size-sm', '--font-size-base', '--font-size-md', '--font-size-lg'],
-    'Shadows': ['--shadow-sm', '--shadow-md', '--shadow-lg'],
-    'Button Colors': ['--btn-primary-bg', '--btn-primary-hover', '--btn-primary-text', '--btn-secondary-bg', '--btn-secondary-hover', '--btn-secondary-text', '--btn-danger-bg', '--btn-danger-hover', '--btn-danger-text', '--btn-success-bg', '--btn-success-hover', '--btn-success-text'],
-    'Tab Colors': ['--tab-bg', '--tab-bg-active', '--tab-text', '--tab-text-active', '--tab-border-active'],
-    'Item Colors': ['--item-border-width', '--item-border-selected']
-  }
-};
+// Module aliases for cleaner code
+const IMAGE_EXTENSIONS = window.Constants ? window.Constants.IMAGE_EXTENSIONS : ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+const GROUP_COLORS = window.Constants ? window.Constants.GROUP_COLORS : ['#1a73e8', '#ea4335', '#34a853', '#fbbc04', '#9c27b0', '#00acc1', '#ff7043', '#8bc34a', '#e91e63', '#3f51b5'];
+const THEME_PRESETS = window.ThemeManager ? window.ThemeManager.THEME_PRESETS : {};
+const THEME_SCHEMA = window.ThemeManager ? window.ThemeManager.THEME_SCHEMA : { properties: {} };
 
 // State
 let currentView = 'list';
@@ -254,9 +18,9 @@ let urlMeta = {}; // { url: { source, addedAt, validated, contentType } }
 let draggedUrl = null;
 let failedUrls = new Set(); // Track URLs that failed to load (CORS, etc.)
 let imageMetaSaveTimer = null; // Debounce timer for saving imageMeta
-let settings = {
+let settings = Object.assign({}, window.Constants ? window.Constants.DEFAULT_SETTINGS : {
   downloadDirectory: '',
-  ungroupedDirectory: '', // Custom directory for ungrouped images (defaults to 'Ungrouped')
+  ungroupedDirectory: '',
   filenameTemplate: '{name}',
   autoRename: false,
   confirmDownload: false,
@@ -268,9 +32,9 @@ let settings = {
   rememberGroups: true,
   theme: 'default',
   customTheme: null,
-  uiScale: 'medium', // 'small', 'medium', or 'large' - controls font and icon sizes
-  density: 'comfortable' // 'compact', 'comfortable', or 'spacious' - controls spacing
-};
+  uiScale: 'medium',
+  density: 'comfortable'
+});
 
 // Debounced save for imageMeta to prevent rapid storage writes
 function saveImageMetaDebounced() {
@@ -283,221 +47,65 @@ function saveImageMetaDebounced() {
   }, 500); // Wait 500ms after last update before saving
 }
 
+// Use module function if available, otherwise fallback to inline implementation
 function isImageUrl(url) {
+  if (window.UrlUtils && window.UrlUtils.isImageUrl) {
+    return window.UrlUtils.isImageUrl(url);
+  }
+  // Fallback implementation
   if (!url) return false;
-
-  // Data URLs for images are always valid
   if (url.startsWith('data:image/')) return true;
-
   try {
     const urlObj = new URL(url);
     const pathname = urlObj.pathname.toLowerCase();
-
-    // Check if pathname ends with image extension
-    if (IMAGE_EXTENSIONS.some(ext => pathname.endsWith(ext))) {
-      return true;
-    }
-
-    // Also check common image patterns that might not have extensions
-    // (e.g., CDN URLs like /image/12345 or URLs with query params)
+    if (IMAGE_EXTENSIONS.some(ext => pathname.endsWith(ext))) return true;
     if (pathname.includes('/image') || pathname.includes('/img') ||
-        pathname.includes('/photo') || pathname.includes('/media')) {
-      return true;
-    }
-
-    // If there's no extension at all in the pathname, it might still be an image
-    // (many CDNs serve images without extensions)
+        pathname.includes('/photo') || pathname.includes('/media')) return true;
     const lastSegment = pathname.split('/').pop();
-    if (lastSegment && !lastSegment.includes('.')) {
-      return true; // Trust URLs without extensions - content script validated them
-    }
+    if (lastSegment && !lastSegment.includes('.')) return true;
   } catch {
-    // If URL parsing fails, fall back to simple check
     const lowerUrl = url.toLowerCase();
     return IMAGE_EXTENSIONS.some(ext => lowerUrl.includes(ext));
   }
-
   return false;
 }
 
+// Delegate to FilenameUtils module
 function getFilenameFromUrl(url, existingNames) {
-  let filename = '';
-  let extension = '';
-
+  if (window.FilenameUtils && window.FilenameUtils.getFilenameFromUrl) {
+    return window.FilenameUtils.getFilenameFromUrl(url, existingNames);
+  }
+  // Minimal fallback
+  var filename = 'image';
+  var extension = '.jpg';
   try {
-    // Handle data URLs
     if (url.startsWith('data:image/')) {
-      const mimeMatch = url.match(/^data:image\/(\w+)/);
+      var mimeMatch = url.match(/^data:image\/(\w+)/);
       extension = mimeMatch ? '.' + mimeMatch[1].replace('jpeg', 'jpg') : '.png';
-      filename = '';
     } else {
-      const urlObj = new URL(url);
-      const pathname = urlObj.pathname;
-      const lastSegment = pathname.split('/').pop() || '';
-
-      // Check if the last segment has a file extension
-      const extMatch = lastSegment.match(/\.(\w+)$/);
+      var urlObj = new URL(url);
+      var lastSegment = urlObj.pathname.split('/').pop() || '';
+      var extMatch = lastSegment.match(/\.(\w+)$/);
       if (extMatch) {
         extension = '.' + extMatch[1].toLowerCase();
-        filename = lastSegment.slice(0, -extension.length);
+        filename = lastSegment.slice(0, -extension.length) || 'image';
       } else {
-        // No extension in path - try to find one from query params or use the segment
-        filename = lastSegment;
-
-        // Check common query params for format hints
-        const format = urlObj.searchParams.get('format') ||
-                       urlObj.searchParams.get('f') ||
-                       urlObj.searchParams.get('type');
-        if (format) {
-          extension = '.' + format.toLowerCase().replace('jpeg', 'jpg');
-        }
-      }
-
-      // If filename is empty or generic, try to extract something meaningful
-      if (!filename || filename === 'image' || filename === 'photo') {
-        // Try using path segments for context
-        const segments = pathname.split('/').filter(s => s && s !== filename);
-        if (segments.length > 0) {
-          const lastMeaningful = segments[segments.length - 1];
-          // Use if it's not just a number or generic term
-          if (lastMeaningful && !/^\d+$/.test(lastMeaningful) &&
-              !['images', 'image', 'photos', 'photo', 'media', 'assets', 'static', 'cdn'].includes(lastMeaningful.toLowerCase())) {
-            filename = lastMeaningful;
-          }
-        }
-
-        // Try hostname as prefix if still empty
-        if (!filename) {
-          const hostParts = urlObj.hostname.split('.');
-          // Get domain name (skip www, cdn, etc.)
-          const domain = hostParts.find(p => !['www', 'cdn', 'static', 'images', 'img', 'media'].includes(p) && p.length > 2);
-          if (domain) {
-            filename = domain + '_image';
-          }
-        }
+        filename = lastSegment || 'image';
       }
     }
-  } catch {
-    // Fallback for malformed URLs
-    const parts = url.split('/');
-    filename = parts[parts.length - 1] || '';
-    const extMatch = filename.match(/\.(\w+)$/);
-    if (extMatch) {
-      extension = '.' + extMatch[1].toLowerCase();
-      filename = filename.slice(0, -extension.length);
-    }
-  }
-
-  // Final fallback - generate a unique name
-  if (!filename) {
-    filename = 'image';
-  }
-
-  // Default extension if none found
-  if (!extension) {
-    extension = '.jpg';
-  }
-
-  // Make the filename unique if existingNames is provided
-  let finalName = filename + extension;
-  if (existingNames && existingNames.size > 0) {
-    let counter = 1;
-    while (existingNames.has(finalName.toLowerCase())) {
-      finalName = filename + '_' + counter + extension;
-      counter++;
-    }
-  }
-
-  return finalName;
+  } catch (e) { /* use defaults */ }
+  return filename + extension;
 }
 
-/**
- * Apply filename template to generate final filename
- * @param {string} template - The template string with placeholders
- * @param {object} context - Context object with values for placeholders
- * @param {string} context.name - The base filename (without extension)
- * @param {string} context.extension - The file extension (with dot)
- * @param {number} context.index - The sequential index (1-based)
- * @param {string} context.group - The group name (or 'Ungrouped')
- * @returns {string} The processed filename with extension
- */
+// Delegate to FilenameUtils module
 function applyFilenameTemplate(template, context) {
+  if (window.FilenameUtils && window.FilenameUtils.applyFilenameTemplate) {
+    return window.FilenameUtils.applyFilenameTemplate(template, context);
+  }
+  // Minimal fallback - just replace {name} and add extension
   var name = context.name || 'image';
   var extension = context.extension || '.jpg';
-  var index = context.index || 1;
-  var group = context.group || 'Ungrouped';
-
-  // Get current date/time
-  var now = new Date();
-
-  // Pad function for numbers
-  function pad(n, width) {
-    width = width || 2;
-    n = String(n);
-    return n.length >= width ? n : new Array(width - n.length + 1).join('0') + n;
-  }
-
-  // Date components
-  var year4 = now.getFullYear();
-  var year2 = String(year4).slice(-2);
-  var month = pad(now.getMonth() + 1);
-  var day = pad(now.getDate());
-  var hours = pad(now.getHours());
-  var minutes = pad(now.getMinutes());
-  var seconds = pad(now.getSeconds());
-
-  // Month names
-  var monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                    'July', 'August', 'September', 'October', 'November', 'December'];
-  var monthShort = monthNames[now.getMonth()].slice(0, 3);
-  var monthLong = monthNames[now.getMonth()];
-
-  // Day names
-  var dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  var dayShort = dayNames[now.getDay()].slice(0, 3);
-  var dayLong = dayNames[now.getDay()];
-
-  // Convenience formats
-  var dateStr = year4 + '-' + month + '-' + day; // YYYY-MM-DD
-  var timeStr = hours + '-' + minutes + '-' + seconds; // hh-mm-ss (file-safe)
-  var isoStr = year4 + month + day + 'T' + hours + minutes + seconds; // Compact ISO-like
-
-  // Replace all tokens
-  var result = template
-    // Core tokens
-    .replace(/\{name\}/gi, name)
-    .replace(/\{original\}/gi, name) // Backwards compatibility
-    .replace(/\{index\}/gi, String(index))
-    .replace(/\{group\}/gi, group)
-    // Year formats
-    .replace(/\{YYYY\}/g, String(year4))
-    .replace(/\{YY\}/g, year2)
-    // Month formats
-    .replace(/\{MM\}/g, month)
-    .replace(/\{M\}/g, String(now.getMonth() + 1))
-    .replace(/\{MMMM\}/g, monthLong)
-    .replace(/\{MMM\}/g, monthShort)
-    // Day formats
-    .replace(/\{DD\}/g, day)
-    .replace(/\{D\}/g, String(now.getDate()))
-    .replace(/\{dddd\}/g, dayLong)
-    .replace(/\{ddd\}/g, dayShort)
-    // Time formats
-    .replace(/\{hh\}/g, hours)
-    .replace(/\{h\}/g, String(now.getHours()))
-    .replace(/\{mm\}/g, minutes)
-    .replace(/\{m\}/g, String(now.getMinutes()))
-    .replace(/\{ss\}/g, seconds)
-    .replace(/\{s\}/g, String(now.getSeconds()))
-    // Convenience formats
-    .replace(/\{date\}/gi, dateStr)
-    .replace(/\{time\}/gi, timeStr)
-    .replace(/\{iso\}/gi, isoStr);
-
-  // Sanitize filename (remove invalid characters)
-  result = result.replace(/[<>:"/\\|?*]/g, '_');
-
-  // Add extension
+  var result = template.replace(/\{name\}/gi, name).replace(/[<>:"/\\|?*]/g, '_');
   return result + extension;
 }
 
@@ -1019,77 +627,51 @@ function applySettingsToUI() {
   applyDensity(settings.density);
 }
 
-// Apply UI scale by setting data attribute on root (controls font and icon sizes)
+// Delegate theme functions to ThemeManager module
 function applyUIScale(scale) {
-  const root = document.documentElement;
-  const validScales = ['small', 'medium', 'large'];
-
-  if (validScales.includes(scale)) {
-    root.setAttribute('data-ui-scale', scale);
-  } else {
-    root.setAttribute('data-ui-scale', 'medium');
+  if (window.ThemeManager && window.ThemeManager.applyUIScale) {
+    return window.ThemeManager.applyUIScale(scale);
   }
+  // Fallback
+  var root = document.documentElement;
+  var validScales = ['small', 'medium', 'large'];
+  root.setAttribute('data-ui-scale', validScales.includes(scale) ? scale : 'medium');
 }
 
-// Apply density by setting data attribute on root (controls spacing only)
 function applyDensity(density) {
-  const root = document.documentElement;
-  const validDensities = ['compact', 'comfortable', 'spacious'];
-
-  if (validDensities.includes(density)) {
-    root.setAttribute('data-density', density);
-  } else {
-    root.setAttribute('data-density', 'comfortable');
+  if (window.ThemeManager && window.ThemeManager.applyDensity) {
+    return window.ThemeManager.applyDensity(density);
   }
+  // Fallback
+  var root = document.documentElement;
+  var validDensities = ['compact', 'comfortable', 'spacious'];
+  root.setAttribute('data-density', validDensities.includes(density) ? density : 'comfortable');
 }
 
-// Apply theme by setting CSS variables on root
 function applyTheme(themeId, customOverrides) {
-  const root = document.documentElement;
-
-  // First, remove all theme variables to reset to CSS defaults
-  const allVars = Object.values(THEME_SCHEMA.properties).flat();
-  allVars.forEach(function(varName) {
-    root.style.removeProperty(varName);
-  });
-
-  // Apply preset theme variables
+  if (window.ThemeManager && window.ThemeManager.applyTheme) {
+    return window.ThemeManager.applyTheme(themeId, customOverrides);
+  }
+  // Minimal fallback - just apply preset variables
+  var root = document.documentElement;
   if (themeId && THEME_PRESETS[themeId]) {
-    const preset = THEME_PRESETS[themeId];
-    Object.entries(preset.variables).forEach(function(entry) {
+    Object.entries(THEME_PRESETS[themeId].variables).forEach(function(entry) {
       root.style.setProperty(entry[0], entry[1]);
     });
   }
-
-  // Apply custom overrides on top
-  if (customOverrides && typeof customOverrides === 'object') {
-    Object.entries(customOverrides).forEach(function(entry) {
-      if (entry[0].startsWith('--')) {
-        root.style.setProperty(entry[0], entry[1]);
-      }
-    });
-  }
 }
 
-// Validate custom theme JSON
 function validateCustomTheme(jsonStr) {
-  if (!jsonStr || !jsonStr.trim()) {
-    return { valid: true, theme: null };
+  if (window.ThemeManager && window.ThemeManager.validateCustomTheme) {
+    return window.ThemeManager.validateCustomTheme(jsonStr);
   }
-
+  // Minimal fallback
+  if (!jsonStr || !jsonStr.trim()) return { valid: true, theme: null };
   try {
-    const parsed = JSON.parse(jsonStr);
+    var parsed = JSON.parse(jsonStr);
     if (typeof parsed !== 'object' || Array.isArray(parsed)) {
       return { valid: false, error: 'Theme must be a JSON object' };
     }
-
-    // Check that all keys are valid CSS variable names
-    for (const key of Object.keys(parsed)) {
-      if (!key.startsWith('--')) {
-        return { valid: false, error: 'All keys must start with "--" (e.g., "--bg-body")' };
-      }
-    }
-
     return { valid: true, theme: parsed };
   } catch (e) {
     return { valid: false, error: 'Invalid JSON: ' + e.message };
