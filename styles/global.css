@@ -279,6 +279,22 @@ body.windowed {
 }
 
 /* ============================================
+   Text Selection Styles
+   ============================================ */
+
+/*
+ * Text selection highlighting for inputs.
+ * Use !important to override Radix Themes defaults.
+ */
+.radix-themes input::selection,
+.radix-themes input::-moz-selection,
+body input::selection,
+body input::-moz-selection {
+  background-color: var(--color-primary) !important;
+  color: var(--text-inverse) !important;
+}
+
+/* ============================================
    Animations
    ============================================ */
 

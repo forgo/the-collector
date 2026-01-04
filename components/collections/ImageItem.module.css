@@ -8,10 +8,27 @@
   background: var(--bg-item);
   border-radius: var(--radius-lg);
   border: var(--item-border-width) solid transparent;
-  cursor: grab;
+  cursor: default;
 }
 
-.imageItem:active {
+/* Drag handle */
+.dragHandle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  cursor: grab;
+  color: var(--text-muted);
+  opacity: 0.5;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+
+.dragHandle:hover {
+  opacity: 1;
+}
+
+.dragHandle:active {
   cursor: grabbing;
 }
 
@@ -87,24 +104,16 @@
 }
 
 /* Editable filename input */
-.filenameEdit {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  width: 100%;
-  max-width: 300px;
-}
-
 .filenameInput {
   flex: 1;
   min-width: 0;
+  max-width: 300px;
   padding: 4px 6px;
   font-size: 12px;
   color: var(--text-primary);
   background: var(--bg-input);
   border: 1px solid var(--border-color);
-  border-right: none;
-  border-radius: 4px 0 0 4px;
+  border-radius: 4px;
   outline: none;
   transition:
     border-color 0.2s,
@@ -114,18 +123,6 @@
 .filenameInput:focus {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb, 59, 130, 246), 0.2);
-}
-
-.filenameExtension {
-  padding: 4px 6px;
-  font-size: 12px;
-  color: var(--text-muted);
-  background: var(--bg-item-hover);
-  border: 1px solid var(--border-color);
-  border-left: none;
-  border-radius: 0 4px 4px 0;
-  user-select: none;
-  white-space: nowrap;
 }
 
 .dimensions {
@@ -147,6 +144,26 @@
 }
 
 /* Grid view overrides */
+.grid .dragHandle {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 1;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  color: white;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.grid:hover .dragHandle {
+  opacity: 0.7;
+}
+
+.grid .dragHandle:hover {
+  opacity: 1;
+}
+
 .grid .checkboxWrapper {
   position: absolute;
   top: 4px;

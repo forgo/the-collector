@@ -67,14 +67,6 @@
 }
 
 /* Editable filename */
-.filenameEdit {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  margin-bottom: 8px;
-}
-
 .filenameInput {
   min-width: 150px;
   max-width: 300px;
@@ -83,9 +75,10 @@
   color: white;
   background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  border-right: none;
-  border-radius: 6px 0 0 6px;
+  border-radius: 6px;
   outline: none;
+  margin-bottom: 8px;
+  text-align: center;
   transition:
     border-color 0.2s,
     background 0.2s;
@@ -94,17 +87,6 @@
 .filenameInput:focus {
   border-color: var(--color-primary);
   background: rgba(255, 255, 255, 0.2);
-}
-
-.filenameExtension {
-  padding: 6px 10px;
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-left: none;
-  border-radius: 0 6px 6px 0;
-  user-select: none;
 }
 
 .type {

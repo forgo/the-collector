@@ -2,6 +2,21 @@
  * Filename generation, template processing, and unique name utilities
  */
 
+// Valid image extensions we recognize
+const IMAGE_EXTENSIONS = new Set([
+  '.jpg',
+  '.jpeg',
+  '.png',
+  '.gif',
+  '.webp',
+  '.svg',
+  '.bmp',
+  '.ico',
+  '.avif',
+  '.tiff',
+  '.tif',
+]);
+
 export interface FilenameContext {
   name: string;
   extension: string;
@@ -209,16 +224,46 @@ export function applyFilenameTemplate(template: string, context: Partial<Filenam
 }
 
 /**
- * Split a filename into name and extension
+ * Split a filename into name and extension.
+ * Only recognizes valid image extensions to avoid incorrectly splitting
+ * filenames that contain periods (e.g., "Screenshot 2025-11-16 at 2.29.30 AM.png")
  */
 export function splitFilename(filename: string): { name: string; extension: string } {
   if (!filename) return { name: '', extension: '' };
 
-  const match = filename.match(/^(.+?)(\.[^.]+)$/);
+  // Look for a valid image extension at the end
+  const match = filename.match(/(\.[^.]+)$/);
   if (match) {
-    return { name: match[1], extension: match[2] };
+    const potentialExt = match[1].toLowerCase();
+    if (IMAGE_EXTENSIONS.has(potentialExt)) {
+      return {
+        name: filename.slice(0, -match[1].length),
+        extension: match[1],
+      };
+    }
   }
+
+  // No valid extension found
   return { name: filename, extension: '' };
+}
+
+/**
+ * Split a filename into name and extension, with a fallback extension.
+ * Use this when you have a separate known extension to use as fallback.
+ */
+export function splitFilenameWithFallback(
+  filename: string,
+  fallbackExtension: string
+): { name: string; extension: string } {
+  const result = splitFilename(filename);
+
+  // If we found a valid extension in the filename, use it
+  if (result.extension) {
+    return result;
+  }
+
+  // Otherwise use the fallback
+  return { name: filename, extension: fallbackExtension };
 }
 
 /**
