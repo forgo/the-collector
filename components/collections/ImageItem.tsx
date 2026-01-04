@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import clsx from 'clsx';
 import type { ImageItem as ImageItemType } from '@/types';
 import { useApp } from '@/context/AppContext';
+import { Icon } from '@/components/common/Icon';
 import { IconButton } from '@/components/common/IconButton';
 import styles from './ImageItem.module.css';
 
@@ -194,15 +195,22 @@ export function ImageItem({ image, groupId, index, onPreview }: ImageItemProps) 
         isNewlyAdded && styles.newlyAdded
       )}
       onClick={handleClick}
-      draggable
       data-url={image.url}
       data-index={index}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
+      <div
+        className={styles.dragHandle}
+        draggable
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        title="Drag to reorder"
+      >
+        <Icon name="drag-handle" size={14} />
+      </div>
+
       <div className={styles.checkboxWrapper} onClick={handleCheckboxClick}>
         <input type="checkbox" checked={isSelected} onChange={() => toggleSelection(image.url)} />
       </div>

@@ -34,6 +34,7 @@ import {
   ExitIcon,
   EyeOpenIcon,
   PlayIcon,
+  DragHandleDots2Icon,
 } from '@radix-ui/react-icons';
 import type { ComponentType } from 'react';
 
@@ -83,6 +84,7 @@ const ICON_MAP: Record<string, ComponentType<RadixIconProps>> = {
   eye: EyeOpenIcon,
   play: PlayIcon,
   gallery: PlayIcon,
+  'drag-handle': DragHandleDots2Icon,
 };
 
 export interface IconProps {
