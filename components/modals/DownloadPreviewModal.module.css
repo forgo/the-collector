@@ -222,8 +222,13 @@
 }
 
 .fileInput::selection {
-  background: #4a90d9;
-  color: white;
+  background-color: #4a90d9 !important;
+  color: white !important;
+}
+
+.fileInput::-moz-selection {
+  background-color: #4a90d9 !important;
+  color: white !important;
 }
 
 .fileExtension {
