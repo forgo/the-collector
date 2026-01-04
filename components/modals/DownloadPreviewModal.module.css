@@ -1,0 +1,234 @@
+/* DownloadPreviewModal.module.css */
+
+.dialog {
+  max-width: 480px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.scopeToggle {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.scopeBtn {
+  flex: 1;
+  padding: 6px 12px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.15s;
+}
+
+.scopeBtnActive {
+  background: var(--color-primary);
+  color: var(--text-inverse);
+  border-color: var(--color-primary);
+}
+
+.treeContainer {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--bg-item);
+  border-radius: 6px;
+  padding: 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.6;
+  max-height: 300px;
+  margin-bottom: 12px;
+}
+
+.treeFolder {
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+.treeFile {
+  color: var(--text-primary);
+  padding-left: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 24px;
+}
+
+.treeFilePrefix {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.treeFilename {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.active {
+  background: var(--color-primary);
+  color: var(--text-inverse);
+  border-color: var(--color-primary);
+}
+
+.options {
+  margin-bottom: 12px;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.option input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+}
+
+.summary {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.conflictWarning {
+  color: var(--color-warning, #fbbc04);
+}
+
+.folderHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.folderHeader:hover {
+  opacity: 0.8;
+}
+
+.folderName {
+  flex: 1;
+}
+
+.folderCount {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.folderFiles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.conflict {
+  color: var(--color-warning, #fbbc04);
+}
+
+.conflictIcon {
+  flex-shrink: 0;
+}
+
+.conflictLegend {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.legendItemConflict {
+  color: var(--color-warning, #fbbc04);
+}
+
+.buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
+.progressBar {
+  position: relative;
+  height: 24px;
+  background: var(--bg-item);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.progressFill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: var(--color-primary);
+  transition: width 0.2s ease;
+}
+
+.progressText {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-primary);
+  z-index: 1;
+}
+
+/* Editable filename in tree */
+.fileName {
+  flex: 1;
+  cursor: text;
+  padding: 2px 4px;
+  border-radius: 3px;
+  transition: background 0.15s;
+}
+
+.fileName:hover {
+  background: var(--bg-item-hover);
+}
+
+.fileEdit {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex: 1;
+}
+
+.fileInput {
+  flex: 1;
+  min-width: 0;
+  padding: 2px 4px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+  background: var(--bg-input);
+  border: 1px solid var(--color-primary);
+  border-right: none;
+  border-radius: 3px 0 0 3px;
+  outline: none;
+}
+
+.fileExtension {
+  padding: 2px 4px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  background: var(--bg-item-hover);
+  border: 1px solid var(--color-primary);
+  border-left: none;
+  border-radius: 0 3px 3px 0;
+  user-select: none;
+}

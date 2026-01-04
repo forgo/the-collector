@@ -1,0 +1,483 @@
+.gallery {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  background: var(--bg-primary, #1a1a1a);
+  color: var(--text-primary, #fff);
+  overflow: hidden;
+  user-select: none;
+}
+
+.gallery.fullscreen {
+  cursor: none;
+}
+
+.gallery.fullscreen .visible {
+  cursor: auto;
+}
+
+/* Loading state */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  font-size: 1.25rem;
+  color: var(--text-secondary, #888);
+}
+
+/* Empty state */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  text-align: center;
+  padding: 2rem;
+}
+
+.empty h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.empty p {
+  margin: 0;
+  color: var(--text-secondary, #888);
+}
+
+/* Main image container */
+.imageContainer {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+  min-height: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Image transitions */
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.imageTransition {
+  position: absolute;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Fade transition */
+.fadeEnter {
+  opacity: 0;
+}
+
+.fadeEnterActive {
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.fadeExit {
+  opacity: 1;
+}
+
+.fadeExitActive {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Slide transition */
+.slideEnter {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.slideEnterActive {
+  transform: translateX(0);
+  opacity: 1;
+  transition:
+    transform 0.3s ease-out,
+    opacity 0.3s ease-out;
+}
+
+.slideExit {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.slideExitActive {
+  transform: translateX(-100%);
+  opacity: 0;
+  transition:
+    transform 0.3s ease-out,
+    opacity 0.3s ease-out;
+}
+
+/* Slide reverse (for previous) */
+.slideReverseEnter {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.slideReverseEnterActive {
+  transform: translateX(0);
+  opacity: 1;
+  transition:
+    transform 0.3s ease-out,
+    opacity 0.3s ease-out;
+}
+
+.slideReverseExit {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.slideReverseExitActive {
+  transform: translateX(100%);
+  opacity: 0;
+  transition:
+    transform 0.3s ease-out,
+    opacity 0.3s ease-out;
+}
+
+/* Zoom transition */
+.zoomEnter {
+  transform: scale(0.8);
+  opacity: 0;
+}
+
+.zoomEnterActive {
+  transform: scale(1);
+  opacity: 1;
+  transition:
+    transform 0.3s ease-out,
+    opacity 0.3s ease-out;
+}
+
+.zoomExit {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.zoomExitActive {
+  transform: scale(1.2);
+  opacity: 0;
+  transition:
+    transform 0.3s ease-out,
+    opacity 0.3s ease-out;
+}
+
+/* No transition */
+.noneEnter,
+.noneEnterActive,
+.noneExit,
+.noneExitActive {
+  /* Instant, no animation */
+}
+
+/* Controls overlay */
+.controls {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 10;
+}
+
+.controls.visible {
+  opacity: 1;
+}
+
+/* Top bar */
+.topBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), transparent);
+  pointer-events: auto;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.groupName {
+  font-size: 0.875rem;
+  color: var(--accent, #3b82f6);
+  font-weight: 500;
+}
+
+.filename {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #888);
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.counter {
+  font-size: 0.875rem;
+  font-weight: 500;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+}
+
+/* Navigation buttons */
+.navButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  transition:
+    background-color 0.2s,
+    transform 0.2s;
+}
+
+.navButton:hover {
+  background: rgba(0, 0, 0, 0.8);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.navButton:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.prevButton {
+  left: 1rem;
+}
+
+.nextButton {
+  right: 1rem;
+}
+
+/* Bottom bar */
+.bottomBar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+  pointer-events: auto;
+}
+
+.bottomBar::before {
+  /* Add extra padding at bottom for thumbnail strip */
+  content: '';
+}
+
+.buttonGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  pointer-events: auto;
+}
+
+.controlButton {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background-color 0.2s,
+    transform 0.1s;
+  pointer-events: auto;
+  position: relative;
+  z-index: 20;
+}
+
+.controlButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.controlButton:active {
+  transform: scale(0.95);
+}
+
+.controlButton.active {
+  background: var(--accent, #3b82f6);
+}
+
+.intervalSelect {
+  height: 40px;
+  padding: 0 2rem 0 0.75rem;
+  border: none;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 0.875rem;
+  cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  min-width: 70px;
+  pointer-events: auto;
+  position: relative;
+  z-index: 20;
+}
+
+.intervalSelect:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.intervalSelect:focus {
+  outline: 2px solid var(--accent, #3b82f6);
+  outline-offset: 2px;
+}
+
+.intervalSelect option {
+  background: #333;
+  color: #fff;
+  padding: 0.5rem;
+}
+
+.transitionSelect {
+  height: 40px;
+  padding: 0 2rem 0 0.75rem;
+  border: none;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 0.875rem;
+  cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  min-width: 90px;
+  pointer-events: auto;
+  position: relative;
+  z-index: 20;
+}
+
+.transitionSelect:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.transitionSelect:focus {
+  outline: 2px solid var(--accent, #3b82f6);
+  outline-offset: 2px;
+}
+
+.transitionSelect option {
+  background: #333;
+  color: #fff;
+  padding: 0.5rem;
+}
+
+/* Thumbnail strip */
+.thumbnailStrip {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-secondary, #222);
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+
+.thumbnailStrip::-webkit-scrollbar {
+  height: 6px;
+}
+
+.thumbnailStrip::-webkit-scrollbar-track {
+  background: var(--bg-primary, #1a1a1a);
+}
+
+.thumbnailStrip::-webkit-scrollbar-thumb {
+  background: var(--border-color, #444);
+  border-radius: 3px;
+}
+
+.thumbnail {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+  background: var(--bg-tertiary, #333);
+  transition:
+    border-color 0.2s,
+    transform 0.1s;
+}
+
+.thumbnail:hover {
+  border-color: var(--text-secondary, #888);
+}
+
+.thumbnail.active {
+  border-color: var(--accent, #3b82f6);
+}
+
+.thumbnail:active {
+  transform: scale(0.95);
+}
+
+.thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Fullscreen adjustments */
+.fullscreen .bottomBar {
+  padding-bottom: 1.5rem;
+}
+
+.fullscreen .thumbnailStrip {
+  display: none;
+}

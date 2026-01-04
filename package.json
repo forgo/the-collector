@@ -1,25 +1,60 @@
 {
-  "name": "image-explorer",
-  "version": "1.1.0",
-  "description": "Browser extension for collecting, organizing, and batch-downloading images from web pages",
+  "name": "the-collector",
+  "description": "Collect, organize, and batch-download images from web pages",
+  "private": true,
+  "version": "2.0.0",
   "type": "module",
   "scripts": {
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "postinstall": "wxt prepare",
+    "prepare": "husky || true"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css}": [
+      "prettier --write"
+    ]
+  },
+  "dependencies": {
+    "@floating-ui/react": "^0.27.16",
+    "@heroicons/react": "^2.2.0",
+    "clsx": "^2.1.1",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "@wxt-dev/module-react": "^1.1.3",
     "eslint": "^9.39.1",
-    "globals": "^16.5.0",
-    "vitest": "^2.1.0"
-  },
-  "keywords": [
-    "browser-extension",
-    "chrome-extension",
-    "image-downloader"
-  ],
-  "license": "MIT"
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "husky": "^9.1.7",
+    "jsdom": "^27.0.1",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.7.3",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.48.0",
+    "vitest": "^4.0.14",
+    "wxt": "^0.20.6"
+  }
 }

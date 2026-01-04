@@ -1,0 +1,16 @@
+/* SettingSection.module.css */
+
+.section {
+  margin-bottom: 24px;
+}
+
+.title {
+  margin: 0 0 12px 0;
+  font-size: 13px;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.content {
+  /* Container for setting items */
+}

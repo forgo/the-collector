@@ -1,0 +1,238 @@
+/* global.css - CSS Variables and Base Styles */
+
+/* ============================================
+   CSS Variables (Theme)
+   ============================================ */
+
+:root {
+  /* Base colors */
+  --color-primary: #4a90d9;
+  --color-primary-hover: #3a7bc8;
+  --color-primary-light: #e8f4fd;
+  --color-secondary: #1a73e8;
+  --color-secondary-hover: #1557b0;
+  --color-danger: #e74c3c;
+  --color-danger-hover: #c0392b;
+  --color-success: #27ae60;
+  --color-success-hover: #1e8449;
+  --color-warning: #f39c12;
+
+  /* Background colors */
+  --bg-body: #ffffff;
+  --bg-header: #f5f5f5;
+  --bg-content: #ffffff;
+  --bg-item: #f5f5f5;
+  --bg-item-hover: #ebebeb;
+  --bg-item-selected: #e8f4fd;
+  --bg-input: #ffffff;
+  --bg-group-header: #f5f5f5;
+  --bg-modal-overlay: rgba(0, 0, 0, 0.85);
+  --bg-tooltip: #333333;
+
+  /* Text colors */
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --text-muted: #888888;
+  --text-inverse: #ffffff;
+  --text-link: #1a73e8;
+
+  /* Border colors */
+  --border-color: #e0e0e0;
+  --border-color-focus: #4a90d9;
+  --border-selection: #4a90d9;
+
+  /* Border radius */
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-xl: 8px;
+  --radius-round: 50%;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 20px;
+
+  /* Font settings */
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  --font-size-xs: 9px;
+  --font-size-sm: 11px;
+  --font-size-base: 13px;
+  --font-size-md: 14px;
+  --font-size-lg: 16px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 4px 20px rgba(0, 0, 0, 0.2);
+
+  /* Button specific */
+  --btn-primary-bg: #1a73e8;
+  --btn-primary-hover: #1557b0;
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: #f0f0f0;
+  --btn-secondary-hover: #e0e0e0;
+  --btn-secondary-text: #333333;
+  --btn-danger-bg: #e74c3c;
+  --btn-danger-hover: #c0392b;
+  --btn-danger-text: #ffffff;
+  --btn-success-bg: #27ae60;
+  --btn-success-hover: #1e8449;
+  --btn-success-text: #ffffff;
+
+  /* Tab specific */
+  --tab-bg: transparent;
+  --tab-bg-active: #ffffff;
+  --tab-text: #666666;
+  --tab-text-active: #1a73e8;
+  --tab-border-active: #1a73e8;
+
+  /* Item specific */
+  --item-border-width: 2px;
+  --item-border-selected: #4a90d9;
+
+  /* Icon button sizes */
+  --icon-btn-sm: 26px;
+  --icon-btn-md: 30px;
+  --icon-btn-lg: 36px;
+
+  /* Icon sizes */
+  --icon-size-sm: 14px;
+  --icon-size-md: 16px;
+  --icon-size-lg: 20px;
+}
+
+/* UI Scale Variants */
+:root[data-ui-scale='small'] {
+  --font-size-xs: 9px;
+  --font-size-sm: 10px;
+  --font-size-base: 12px;
+  --font-size-md: 13px;
+  --font-size-lg: 14px;
+  --icon-size-sm: 12px;
+  --icon-size-md: 14px;
+  --icon-size-lg: 16px;
+  --icon-btn-sm: 22px;
+  --icon-btn-md: 26px;
+  --icon-btn-lg: 30px;
+}
+
+:root[data-ui-scale='medium'] {
+  --font-size-xs: 10px;
+  --font-size-sm: 12px;
+  --font-size-base: 14px;
+  --font-size-md: 15px;
+  --font-size-lg: 17px;
+  --icon-size-sm: 16px;
+  --icon-size-md: 18px;
+  --icon-size-lg: 22px;
+  --icon-btn-sm: 28px;
+  --icon-btn-md: 32px;
+  --icon-btn-lg: 38px;
+}
+
+:root[data-ui-scale='large'] {
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-md: 17px;
+  --font-size-lg: 19px;
+  --icon-size-sm: 18px;
+  --icon-size-md: 20px;
+  --icon-size-lg: 24px;
+  --icon-btn-sm: 32px;
+  --icon-btn-md: 38px;
+  --icon-btn-lg: 44px;
+}
+
+/* Density Variants */
+:root[data-density='compact'] {
+  --spacing-xs: 2px;
+  --spacing-sm: 4px;
+  --spacing-md: 8px;
+  --spacing-lg: 12px;
+  --spacing-xl: 16px;
+}
+
+:root[data-density='comfortable'] {
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 20px;
+}
+
+:root[data-density='spacious'] {
+  --spacing-xs: 6px;
+  --spacing-sm: 10px;
+  --spacing-md: 16px;
+  --spacing-lg: 22px;
+  --spacing-xl: 28px;
+}
+
+/* ============================================
+   Base Styles
+   ============================================ */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  width: 600px;
+  height: 700px;
+  padding: 0;
+  margin: 0;
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  background: var(--bg-body);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+body.windowed {
+  width: 100%;
+  height: 100vh;
+  min-width: 400px;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rejectShake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-8px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(8px);
+  }
+}

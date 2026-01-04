@@ -1,21 +1,43 @@
+# Dependencies
+node_modules/
+
+# WXT build artifacts
+.wxt/
+.output/
+stats.html
+stats-*.json
+web-ext.config.ts
+
+# Build outputs
+dist/
+build/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
 # OS files
 .DS_Store
 Thumbs.db
 
 # Editor files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 *.swp
 *.swo
 *~
-.idea/
-.vscode/
 *.sublime-*
-
-# Node modules (if added later)
-node_modules/
-
-# Build outputs
-dist/
-build/
 
 # Test coverage
 coverage/
@@ -23,10 +45,7 @@ coverage/
 # Environment files
 .env
 .env.local
-
-# Logs
-*.log
-npm-debug.log*
+.env*.local
 
 # Temporary files
 *.tmp

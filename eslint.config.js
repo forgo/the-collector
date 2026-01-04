@@ -1,66 +1,59 @@
 import js from '@eslint/js';
-import globals from 'globals';
+import tseslint from 'typescript-eslint';
+import react from 'eslint-plugin-react';
+import reactHooks from 'eslint-plugin-react-hooks';
 
-export default [
+export default tseslint.config(
   js.configs.recommended,
+  ...tseslint.configs.recommended,
   {
+    files: ['**/*.{ts,tsx}'],
+    plugins: {
+      react,
+      'react-hooks': reactHooks,
+    },
     languageOptions: {
-      ecmaVersion: 2022,
-      sourceType: 'module',
-      globals: {
-        ...globals.browser,
-        ...globals.webextensions,
-        chrome: 'readonly',
-        CSS: 'readonly',
-      }
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+    },
+    settings: {
+      react: {
+        version: 'detect',
+      },
     },
     rules: {
-      'no-unused-vars': ['warn', {
-        argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_'
-      }],
+      // React rules
+      'react/react-in-jsx-scope': 'off',
+      'react/prop-types': 'off',
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+
+      // TypeScript rules
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+
+      // General rules
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       'prefer-const': 'error',
-      'eqeqeq': ['error', 'always'],
       'no-var': 'error',
-    }
-  },
-  {
-    // Legacy popup.js - relax rules until full refactor
-    files: ['popup.js'],
-    languageOptions: {
-      globals: {
-        Icons: 'readonly',
-        FloatingUIDOM: 'readonly',
-      }
     },
-    rules: {
-      'no-var': 'warn',
-      'prefer-const': 'warn',
-      'eqeqeq': 'warn',
-      'no-unused-vars': 'off',
-      'no-redeclare': 'warn',
-      'no-useless-escape': 'warn',
-    }
   },
   {
-    // Test files configuration
-    files: ['tests/**/*.js'],
-    languageOptions: {
-      globals: {
-        ...globals.node,
-        describe: 'readonly',
-        it: 'readonly',
-        expect: 'readonly',
-        beforeEach: 'readonly',
-        afterEach: 'readonly',
-        beforeAll: 'readonly',
-        afterAll: 'readonly',
-      }
-    }
-  },
-  {
-    // Ignore patterns
-    ignores: ['node_modules/**', 'dist/**', '*.min.js']
+    ignores: [
+      '.output/',
+      '.wxt/',
+      'node_modules/',
+      'dist/',
+      '*.config.js',
+      '*.config.ts',
+    ],
   }
-];
+);

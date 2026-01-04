@@ -1,0 +1,27 @@
+/* DirectoryEditModal.module.css */
+
+.dialog {
+  max-width: 360px;
+}
+
+.hint {
+  margin: 0 0 12px 0;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 13px;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--border-color-focus);
+}

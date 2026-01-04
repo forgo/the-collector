@@ -1,0 +1,223 @@
+/* ImageItem.module.css */
+
+.imageItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  background: var(--bg-item);
+  border-radius: var(--radius-lg);
+  border: var(--item-border-width) solid transparent;
+  cursor: grab;
+}
+
+.imageItem:active {
+  cursor: grabbing;
+}
+
+.selected {
+  border-color: var(--item-border-selected);
+  background: var(--bg-item-selected);
+}
+
+/* List view */
+.list {
+  margin-bottom: var(--spacing-sm);
+}
+
+/* Grid view */
+.grid {
+  position: relative;
+  flex-direction: column;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.checkboxWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkboxWrapper input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--color-primary);
+}
+
+.thumbnail {
+  flex-shrink: 0;
+  background: var(--bg-item-hover);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.thumbnail img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+}
+
+.thumbnailError {
+  font-size: 10px;
+  color: var(--text-muted);
+  padding: 8px;
+  text-align: center;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.filename {
+  font-size: 12px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Editable filename input */
+.filenameEdit {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: 100%;
+  max-width: 300px;
+}
+
+.filenameInput {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 6px;
+  font-size: 12px;
+  color: var(--text-primary);
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-right: none;
+  border-radius: 4px 0 0 4px;
+  outline: none;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.filenameInput:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb, 59, 130, 246), 0.2);
+}
+
+.filenameExtension {
+  padding: 4px 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+  background: var(--bg-item-hover);
+  border: 1px solid var(--border-color);
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.dimensions {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.filetype {
+  font-size: 10px;
+  color: var(--color-secondary);
+  font-weight: 500;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+/* Grid view overrides */
+.grid .checkboxWrapper {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  z-index: 1;
+}
+
+.grid .thumbnail {
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+.grid .info {
+  display: none;
+}
+
+.grid .actions {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 4px;
+  padding: 2px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.grid:hover .actions {
+  opacity: 1;
+}
+
+/* Drag states */
+.dragging {
+  opacity: 0.5;
+  border-style: dashed;
+}
+
+.dragOverBefore {
+  border-left: 3px solid var(--color-primary);
+}
+
+.dragOverAfter {
+  border-right: 3px solid var(--color-primary);
+}
+
+/* List view drag indicators */
+.list.dragOverBefore {
+  border-left: none;
+  border-top: 3px solid var(--color-primary);
+}
+
+.list.dragOverAfter {
+  border-right: none;
+  border-bottom: 3px solid var(--color-primary);
+}
+
+/* Newly added item animation */
+.newlyAdded {
+  animation: highlightNew 2s ease-out;
+}
+
+@keyframes highlightNew {
+  0% {
+    background: var(--color-primary);
+    transform: scale(1.02);
+  }
+  20% {
+    background: color-mix(in srgb, var(--color-primary) 30%, var(--bg-item));
+  }
+  100% {
+    background: var(--bg-item);
+    transform: scale(1);
+  }
+}

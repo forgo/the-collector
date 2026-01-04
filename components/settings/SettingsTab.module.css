@@ -1,0 +1,58 @@
+/* SettingsTab.module.css */
+
+.settingsTab {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.content {
+  padding: 16px;
+  background: var(--bg-body);
+}
+
+.sliderRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sliderRow input[type='range'] {
+  flex: 1;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--border-color);
+  border-radius: 3px;
+  outline: none;
+}
+
+.sliderRow input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  cursor: pointer;
+  border: 2px solid var(--bg-content);
+  box-shadow: var(--shadow-sm);
+}
+
+.sliderRow input[type='range']::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  cursor: pointer;
+  border: 2px solid var(--bg-content);
+  box-shadow: var(--shadow-sm);
+}
+
+.sliderValue {
+  min-width: 50px;
+  text-align: right;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}

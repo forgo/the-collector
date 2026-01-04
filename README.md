@@ -4,28 +4,37 @@
 
 ## Features
 
-- **One-Click Collection** - Collect all images from any webpage instantly
+- **One-Click Collection** - Collect images from any webpage with hover buttons
 - **Smart Organization** - Create color-coded groups to organize your images
 - **Batch Download** - Download all images at once with customizable folder structure
 - **Filename Templates** - Use tokens like `{date}`, `{index}`, `{name}` for automated naming
-- **Multiple Themes** - Dark, light, dracula, nord, and solarized themes included
+- **Gallery Mode** - Full-window slideshow viewer with keyboard navigation
+- **Multiple Themes** - 7 built-in themes including dark, light, dracula, nord, and more
 - **Drag & Drop** - Reorder images and move between groups
 - **Grid/List Views** - Toggle between compact grid and detailed list layouts
 - **Download Preview** - See the exact folder structure before downloading
+- **Conflict Detection** - Warns about duplicate filenames before download
 
 ## Installation
 
-### From Source (Developer Mode)
+### Chrome (Manifest V3)
 
 1. Clone or download this repository
-2. Open Chrome and navigate to `chrome://extensions`
-3. Enable **Developer mode** (toggle in top-right)
-4. Click **Load unpacked**
-5. Select the project folder
+2. Run `npm install` to install dependencies
+3. Run `npm run build` to build for Chrome
+4. Open Chrome and navigate to `chrome://extensions`
+5. Enable **Developer mode** (toggle in top-right)
+6. Click **Load unpacked**
+7. Select the `.output/chrome-mv3` folder
 
-### From Chrome Web Store
+### Firefox (Manifest V2)
 
-Coming soon.
+1. Clone or download this repository
+2. Run `npm install` to install dependencies
+3. Run `npm run build:firefox` to build for Firefox
+4. Open Firefox and navigate to `about:debugging#/runtime/this-firefox`
+5. Click **Load Temporary Add-on**
+6. Select any file in the `.output/firefox-mv2` folder
 
 ## Usage
 
@@ -33,14 +42,29 @@ Coming soon.
 
 1. Navigate to any webpage with images
 2. Click the The Collector extension icon
-3. Images from the page are automatically collected
-4. Use the search/filter to find specific images
+3. Hover over images to see collection buttons
+4. Click "+ Ungrouped" or "+ Group" to add images
 
 ### Organizing Images
 
-- **Create Groups** - Click "New Group" to create a named, color-coded group
-- **Add to Groups** - Select images and use "Add to Group" or drag & drop
+- **Create Groups** - Click "New" to create a named, color-coded group
+- **Add to Groups** - Select images and use "Group" button or drag & drop
 - **Set Download Paths** - Each group can have its own subfolder for downloads
+
+### Gallery Mode
+
+Open the gallery to view your collected images in a full-window slideshow:
+
+- **Open Gallery** - Click the play button in the header (all images) or on a group card
+- **Navigate** - Use arrow keys, click left/right sides, or let it auto-play
+- **Keyboard Shortcuts**:
+  - Arrow keys: Navigate between images
+  - Space: Next image
+  - Home/End: First/last image
+  - P: Toggle slideshow play/pause
+  - F: Toggle fullscreen mode
+  - Escape: Exit fullscreen or close gallery
+- **Controls** - Adjust slideshow interval (1-10s) and transition effects (fade, slide, zoom)
 
 ### Downloading
 
@@ -68,13 +92,14 @@ Example: `{group}_{date}_{index}` produces `Vacation_2024-01-15_1.jpg`
 
 ## Configuration
 
-Access settings via the gear icon:
+Access settings via the Settings tab:
 
-- **Theme** - Choose from 5 built-in themes
-- **Default Download Path** - Set base folder for downloads
+- **Theme** - Choose from 7 built-in themes (Default Light, GitHub Light, Dark, Dracula, Nord, Solarized Dark, Monokai)
+- **Root Download Folder** - Set base folder for downloads
 - **Filename Template** - Customize default naming pattern
 - **Thumbnail Size** - Adjust preview size in grid/list views
-- **Minimum Image Size** - Filter out small images (icons, avatars)
+- **UI Scale** - Small, medium, or large interface scaling
+- **Density** - Compact, comfortable, or spacious spacing
 
 ## Development
 
@@ -83,45 +108,82 @@ Access settings via the gear icon:
 - Node.js 18+
 - npm
 
-### Setup
+### Quick Start
 
 ```bash
 # Install dependencies
 npm install
+
+# Start development server with hot reload
+npm run dev           # Chrome
+npm run dev:firefox   # Firefox
+
+# Build for production
+npm run build         # Chrome
+npm run build:firefox # Firefox
 
 # Run tests
 npm test
 
 # Run tests in watch mode
 npm run test:watch
+
+# Lint code
+npm run lint
+
+# Type check
+npm run typecheck
 ```
 
 ### Project Structure
 
 ```
-/src
-├── /popup          # Main extension UI
-├── /downloads      # Download management modules
-├── /shared         # Shared utilities
-└── /settings       # Settings and theme management
-/styles             # Extracted CSS stylesheets
-/tests              # Unit tests
-/icons              # Extension icons
+the-collector/
+├── entrypoints/           # Extension entry points
+│   ├── background.ts      # Service worker / background script
+│   ├── content.ts         # Content script (image detection)
+│   ├── popup/             # Popup UI (React)
+│   │   ├── index.html
+│   │   ├── main.tsx
+│   │   └── App.tsx
+│   └── gallery/           # Gallery mode (React)
+│       ├── index.html
+│       ├── main.tsx
+│       └── Gallery.tsx
+├── components/            # React components
+│   ├── common/            # Shared components (Button, Icon, Modal)
+│   ├── layout/            # Layout components (Header, Sidebar)
+│   └── collections/       # Collection-specific components
+├── lib/                   # Business logic
+│   ├── storage.ts         # Browser storage utilities
+│   ├── downloads.ts       # Download management
+│   ├── filename.ts        # Filename template processing
+│   └── groups.ts          # Group management
+├── styles/                # Global CSS
+│   └── global.css
+├── public/                # Static assets
+│   └── icon/              # Extension icons
+├── tests/                 # Test files
+├── wxt.config.ts          # WXT configuration
+├── tsconfig.json          # TypeScript configuration
+└── package.json
 ```
 
 ### Architecture
 
-- **Manifest V3** - Modern Chrome extension architecture
-- **Modular Design** - Single-responsibility modules
-- **No Dependencies** - Zero runtime dependencies (vanilla JS)
+- **WXT Framework** - Modern browser extension tooling with hot reload
+- **React + TypeScript** - Type-safe component architecture
+- **CSS Modules** - Scoped component styling
 - **Vitest** - Fast unit testing
+- **ESLint + Prettier** - Code quality and formatting
 
 ## Browser Support
 
-- Chrome 88+ (Manifest V3)
-- Edge 88+ (Chromium-based)
-
-Firefox support planned for future release.
+| Browser | Version | Manifest |
+| ------- | ------- | -------- |
+| Chrome  | 88+     | V3       |
+| Edge    | 88+     | V3       |
+| Firefox | 109+    | V2       |
 
 ## License
 
@@ -134,7 +196,8 @@ Contributions welcome! Please:
 1. Fork the repository
 2. Create a feature branch
 3. Add tests for new functionality
-4. Submit a pull request
+4. Run `npm test` and `npm run lint`
+5. Submit a pull request
 
 ## Changelog
 
