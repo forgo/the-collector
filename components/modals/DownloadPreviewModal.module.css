@@ -216,29 +216,6 @@
   color: var(--text-primary);
   background: var(--bg-input);
   border: 1px solid var(--color-primary);
-  border-right: none;
-  border-radius: 3px 0 0 3px;
+  border-radius: 3px;
   outline: none;
-}
-
-.fileInput::selection {
-  background-color: #4a90d9 !important;
-  color: white !important;
-}
-
-.fileInput::-moz-selection {
-  background-color: #4a90d9 !important;
-  color: white !important;
-}
-
-.fileExtension {
-  padding: 2px 4px;
-  font-size: 11px;
-  font-family: var(--font-mono);
-  color: var(--text-muted);
-  background: var(--bg-item-hover);
-  border: 1px solid var(--color-primary);
-  border-left: none;
-  border-radius: 0 3px 3px 0;
-  user-select: none;
 }

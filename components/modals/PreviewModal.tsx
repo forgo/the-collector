@@ -1,7 +1,6 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { ImageItem } from '@/types';
 import { useApp } from '@/context/AppContext';
-import { splitFilenameWithFallback } from '@/lib/filename';
 import styles from './PreviewModal.module.css';
 
 interface PreviewModalProps {
@@ -14,26 +13,17 @@ export function PreviewModal({ image, groupId, onClose }: PreviewModalProps) {
   const { updateImageFilename } = useApp();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Parse filename - use robust parsing that only recognizes valid image extensions
+  // Edit the full filename as-is (no extension splitting)
   const displayFilename = image?.customFilename || image?.filename || '';
-  const { name: nameWithoutExt, extension } = useMemo(
-    () => splitFilenameWithFallback(displayFilename, image?.extension || ''),
-    [displayFilename, image?.extension]
-  );
-
-  const [editingName, setEditingName] = useState(nameWithoutExt);
-  const [originalName, setOriginalName] = useState(nameWithoutExt);
+  const [editingName, setEditingName] = useState(displayFilename);
+  const [originalName, setOriginalName] = useState(displayFilename);
 
   // Update local state when image changes
   useEffect(() => {
     if (image) {
       const newDisplayFilename = image.customFilename || image.filename;
-      const { name: newName } = splitFilenameWithFallback(
-        newDisplayFilename,
-        image.extension || ''
-      );
-      setEditingName(newName);
-      setOriginalName(newName);
+      setEditingName(newDisplayFilename);
+      setOriginalName(newDisplayFilename);
     }
   }, [image]);
 
@@ -46,8 +36,7 @@ export function PreviewModal({ image, groupId, onClose }: PreviewModalProps) {
   const handleFilenameSave = () => {
     const trimmedName = editingName.trim();
     if (trimmedName && trimmedName !== originalName) {
-      const newFullFilename = trimmedName + extension;
-      updateImageFilename(image.url, newFullFilename, groupId ?? null);
+      updateImageFilename(image.url, trimmedName, groupId ?? null);
       setOriginalName(trimmedName);
     } else if (!trimmedName) {
       setEditingName(originalName);
@@ -78,19 +67,16 @@ export function PreviewModal({ image, groupId, onClose }: PreviewModalProps) {
             {image.width} × {image.height}
           </div>
         )}
-        <div className={styles.filenameEdit}>
-          <input
-            ref={inputRef}
-            type="text"
-            className={styles.filenameInput}
-            value={editingName}
-            onChange={handleFilenameChange}
-            onBlur={handleFilenameSave}
-            onKeyDown={handleFilenameKeyDown}
-            title="Edit filename"
-          />
-          <span className={styles.filenameExtension}>{extension}</span>
-        </div>
+        <input
+          ref={inputRef}
+          type="text"
+          className={styles.filenameInput}
+          value={editingName}
+          onChange={handleFilenameChange}
+          onBlur={handleFilenameSave}
+          onKeyDown={handleFilenameKeyDown}
+          title="Click to edit filename"
+        />
         {image.extension && (
           <div className={styles.type}>{image.extension.replace('.', '').toUpperCase()}</div>
         )}

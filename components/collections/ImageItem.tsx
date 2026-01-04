@@ -1,10 +1,9 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import clsx from 'clsx';
 import type { ImageItem as ImageItemType } from '@/types';
 import { useApp } from '@/context/AppContext';
 import { Icon } from '@/components/common/Icon';
 import { IconButton } from '@/components/common/IconButton';
-import { splitFilenameWithFallback } from '@/lib/filename';
 import styles from './ImageItem.module.css';
 
 // Custom MIME type for internal drags - distinguishes from external drops
@@ -32,24 +31,18 @@ export function ImageItem({ image, groupId, index, onPreview }: ImageItemProps) 
   const [imageError, setImageError] = useState(false);
   const [dragOver, setDragOver] = useState<'before' | 'after' | null>(null);
 
-  // Editable filename state - use robust parsing that only recognizes valid image extensions
+  // Editable filename state - edit the full filename as-is (no extension splitting)
   const displayFilename = image.customFilename || image.filename;
-  const { name: nameWithoutExt, extension } = useMemo(
-    () => splitFilenameWithFallback(displayFilename, image.extension || ''),
-    [displayFilename, image.extension]
-  );
-
-  const [editingName, setEditingName] = useState(nameWithoutExt);
-  const [originalName, setOriginalName] = useState(nameWithoutExt);
+  const [editingName, setEditingName] = useState(displayFilename);
+  const [originalName, setOriginalName] = useState(displayFilename);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Update local state when image changes
   useEffect(() => {
     const newDisplayFilename = image.customFilename || image.filename;
-    const { name: newName } = splitFilenameWithFallback(newDisplayFilename, image.extension || '');
-    setEditingName(newName);
-    setOriginalName(newName);
-  }, [image.customFilename, image.filename, image.extension]);
+    setEditingName(newDisplayFilename);
+    setOriginalName(newDisplayFilename);
+  }, [image.customFilename, image.filename]);
 
   const isSelected = selectedUrls.has(image.url);
   const isDragging = dragState.isDragging && dragState.draggedUrls.includes(image.url);
@@ -92,8 +85,7 @@ export function ImageItem({ image, groupId, index, onPreview }: ImageItemProps) 
   const handleFilenameSave = () => {
     const trimmedName = editingName.trim();
     if (trimmedName && trimmedName !== originalName) {
-      const newFullFilename = trimmedName + extension;
-      updateImageFilename(image.url, newFullFilename, groupId ?? null);
+      updateImageFilename(image.url, trimmedName, groupId ?? null);
       setOriginalName(trimmedName);
     } else if (!trimmedName) {
       // Reset to original if empty
@@ -238,19 +230,17 @@ export function ImageItem({ image, groupId, index, onPreview }: ImageItemProps) 
 
       <div className={styles.info}>
         {viewMode === 'list' ? (
-          <div className={styles.filenameEdit} onClick={handleFilenameClick}>
-            <input
-              ref={inputRef}
-              type="text"
-              className={styles.filenameInput}
-              value={editingName}
-              onChange={handleFilenameChange}
-              onBlur={handleFilenameSave}
-              onKeyDown={handleFilenameKeyDown}
-              title={displayFilename}
-            />
-            <span className={styles.filenameExtension}>{extension}</span>
-          </div>
+          <input
+            ref={inputRef}
+            type="text"
+            className={styles.filenameInput}
+            value={editingName}
+            onChange={handleFilenameChange}
+            onBlur={handleFilenameSave}
+            onKeyDown={handleFilenameKeyDown}
+            onClick={handleFilenameClick}
+            title="Click to edit filename"
+          />
         ) : (
           <span className={styles.filename} title={displayFilename}>
             {displayFilename}

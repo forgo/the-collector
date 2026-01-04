@@ -18,7 +18,7 @@ import {
   getSortedDirectories,
   getTreeStats,
 } from '@/lib/tree-builder';
-import { getFilenameFromUrl, splitFilename } from '@/lib/filename';
+import { getFilenameFromUrl } from '@/lib/filename';
 import type { ImageItem } from '@/types';
 import styles from './DownloadPreviewModal.module.css';
 
@@ -27,26 +27,32 @@ interface DownloadPreviewModalProps {
   onClose: () => void;
 }
 
-// Helper to get effective filename (customFilename or generated from URL)
-function getEffectiveFilename(image: ImageItem, usedFilenames: Set<string>): string {
-  if (image.customFilename) {
-    let filename = image.customFilename;
-    const lowerFilename = filename.toLowerCase();
+// Helper to add a counter to a filename (macOS style: "file (1).png")
+function addCounterToFilename(filename: string, counter: number): string {
+  return `${filename} (${counter})`;
+}
 
-    if (usedFilenames.has(lowerFilename)) {
-      // Use robust parsing that only recognizes valid image extensions
-      const { name: nameWithoutExt, extension: ext } = splitFilename(filename);
-      let counter = 1;
-      let newFilename = `${nameWithoutExt}_${counter}${ext}`;
-      while (usedFilenames.has(newFilename.toLowerCase())) {
-        counter++;
-        newFilename = `${nameWithoutExt}_${counter}${ext}`;
-      }
-      filename = newFilename;
-    }
-    return filename;
+// Helper to get effective filename: customFilename > filename > generated from URL
+function getEffectiveFilename(image: ImageItem, usedFilenames: Set<string>): string {
+  // Priority: user-edited name, then auto-generated name, then parse from URL
+  let filename = image.customFilename || image.filename;
+
+  if (!filename) {
+    return getFilenameFromUrl(image.url, usedFilenames);
   }
-  return getFilenameFromUrl(image.url, usedFilenames);
+
+  // Handle duplicates
+  if (usedFilenames.has(filename.toLowerCase())) {
+    let counter = 1;
+    let newFilename = addCounterToFilename(filename, counter);
+    while (usedFilenames.has(newFilename.toLowerCase())) {
+      counter++;
+      newFilename = addCounterToFilename(filename, counter);
+    }
+    filename = newFilename;
+  }
+
+  return filename;
 }
 
 export function DownloadPreviewModal({ isOpen, onClose }: DownloadPreviewModalProps) {
@@ -294,20 +300,17 @@ function TreeFile({ file, onFilenameChange }: TreeFileProps) {
   const [editValue, setEditValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Use robust parsing that only recognizes valid image extensions
-  const { name: nameWithoutExt, extension } = splitFilename(file.filename);
-
   const handleStartEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setEditValue(nameWithoutExt);
+    setEditValue(file.filename);
     setIsEditing(true);
     setTimeout(() => inputRef.current?.focus(), 0);
   };
 
   const handleSave = () => {
     const trimmed = editValue.trim();
-    if (trimmed && trimmed !== nameWithoutExt) {
-      onFilenameChange(file.url, trimmed + extension, file.groupId ?? null);
+    if (trimmed && trimmed !== file.filename) {
+      onFilenameChange(file.url, trimmed, file.groupId ?? null);
     }
     setIsEditing(false);
   };
@@ -330,20 +333,15 @@ function TreeFile({ file, onFilenameChange }: TreeFileProps) {
       )}
       <Icon name="photo" size={14} />
       {isEditing ? (
-        <Flex gap="1" align="center">
-          <input
-            ref={inputRef}
-            type="text"
-            value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            onBlur={handleSave}
-            onKeyDown={handleKeyDown}
-            className={styles.fileInput}
-          />
-          <Text size="2" color="gray">
-            {extension}
-          </Text>
-        </Flex>
+        <input
+          ref={inputRef}
+          type="text"
+          value={editValue}
+          onChange={(e) => setEditValue(e.target.value)}
+          onBlur={handleSave}
+          onKeyDown={handleKeyDown}
+          className={styles.fileInput}
+        />
       ) : (
         <Text
           size="2"

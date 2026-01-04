@@ -284,16 +284,14 @@ body.windowed {
 
 /*
  * Text selection highlighting for inputs.
- * Firefox requires specific handling for form elements.
- * Use high specificity to override Radix Themes defaults.
+ * Use !important to override Radix Themes defaults.
  */
 .radix-themes input::selection,
 .radix-themes input::-moz-selection,
 body input::selection,
 body input::-moz-selection {
-  background-color: #4a90d9 !important;
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
+  background-color: var(--color-primary) !important;
+  color: var(--text-inverse) !important;
 }
 
 /* ============================================
