@@ -221,6 +221,11 @@
   outline: none;
 }
 
+.fileInput::selection {
+  background: var(--color-primary);
+  color: white;
+}
+
 .fileExtension {
   padding: 2px 4px;
   font-size: 11px;
