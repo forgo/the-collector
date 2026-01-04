@@ -18,7 +18,7 @@ import {
   getSortedDirectories,
   getTreeStats,
 } from '@/lib/tree-builder';
-import { getFilenameFromUrl } from '@/lib/filename';
+import { getFilenameFromUrl, splitFilename } from '@/lib/filename';
 import type { ImageItem } from '@/types';
 import styles from './DownloadPreviewModal.module.css';
 
@@ -34,9 +34,8 @@ function getEffectiveFilename(image: ImageItem, usedFilenames: Set<string>): str
     const lowerFilename = filename.toLowerCase();
 
     if (usedFilenames.has(lowerFilename)) {
-      const extMatch = filename.match(/(\.[^.]+)$/);
-      const ext = extMatch ? extMatch[1] : '';
-      const nameWithoutExt = ext ? filename.slice(0, -ext.length) : filename;
+      // Use robust parsing that only recognizes valid image extensions
+      const { name: nameWithoutExt, extension: ext } = splitFilename(filename);
       let counter = 1;
       let newFilename = `${nameWithoutExt}_${counter}${ext}`;
       while (usedFilenames.has(newFilename.toLowerCase())) {
@@ -295,9 +294,8 @@ function TreeFile({ file, onFilenameChange }: TreeFileProps) {
   const [editValue, setEditValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const extMatch = file.filename.match(/(\.[^.]+)$/);
-  const extension = extMatch ? extMatch[1] : '';
-  const nameWithoutExt = extension ? file.filename.slice(0, -extension.length) : file.filename;
+  // Use robust parsing that only recognizes valid image extensions
+  const { name: nameWithoutExt, extension } = splitFilename(file.filename);
 
   const handleStartEdit = (e: React.MouseEvent) => {
     e.stopPropagation();

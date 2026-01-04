@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import clsx from 'clsx';
 import type { ImageItem as ImageItemType } from '@/types';
 import { useApp } from '@/context/AppContext';
 import { IconButton } from '@/components/common/IconButton';
+import { splitFilenameWithFallback } from '@/lib/filename';
 import styles from './ImageItem.module.css';
 
 // Custom MIME type for internal drags - distinguishes from external drops
@@ -30,11 +31,12 @@ export function ImageItem({ image, groupId, index, onPreview }: ImageItemProps) 
   const [imageError, setImageError] = useState(false);
   const [dragOver, setDragOver] = useState<'before' | 'after' | null>(null);
 
-  // Editable filename state
+  // Editable filename state - use robust parsing that only recognizes valid image extensions
   const displayFilename = image.customFilename || image.filename;
-  const extMatch = displayFilename.match(/(\.[^.]+)$/);
-  const extension = extMatch ? extMatch[1] : image.extension || '';
-  const nameWithoutExt = extension ? displayFilename.slice(0, -extension.length) : displayFilename;
+  const { name: nameWithoutExt, extension } = useMemo(
+    () => splitFilenameWithFallback(displayFilename, image.extension || ''),
+    [displayFilename, image.extension]
+  );
 
   const [editingName, setEditingName] = useState(nameWithoutExt);
   const [originalName, setOriginalName] = useState(nameWithoutExt);
@@ -43,9 +45,7 @@ export function ImageItem({ image, groupId, index, onPreview }: ImageItemProps) 
   // Update local state when image changes
   useEffect(() => {
     const newDisplayFilename = image.customFilename || image.filename;
-    const newExtMatch = newDisplayFilename.match(/(\.[^.]+)$/);
-    const newExt = newExtMatch ? newExtMatch[1] : image.extension || '';
-    const newName = newExt ? newDisplayFilename.slice(0, -newExt.length) : newDisplayFilename;
+    const { name: newName } = splitFilenameWithFallback(newDisplayFilename, image.extension || '');
     setEditingName(newName);
     setOriginalName(newName);
   }, [image.customFilename, image.filename, image.extension]);
