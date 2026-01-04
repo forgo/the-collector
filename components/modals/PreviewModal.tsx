@@ -14,14 +14,16 @@ export function PreviewModal({ image, groupId, onClose }: PreviewModalProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Edit the full filename as-is (no extension splitting)
-  const displayFilename = image?.customFilename || image?.filename || '';
+  // Note: image.filename is base name without extension, so we append image.extension
+  const displayFilename =
+    image?.customFilename || (image?.filename || '') + (image?.extension || '');
   const [editingName, setEditingName] = useState(displayFilename);
   const [originalName, setOriginalName] = useState(displayFilename);
 
   // Update local state when image changes
   useEffect(() => {
     if (image) {
-      const newDisplayFilename = image.customFilename || image.filename;
+      const newDisplayFilename = image.customFilename || image.filename + (image.extension || '');
       setEditingName(newDisplayFilename);
       setOriginalName(newDisplayFilename);
     }

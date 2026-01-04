@@ -201,8 +201,26 @@ export function GroupCard({ group, onPreviewImage, onEditDirectory, onGallery }:
         } else {
           // Reordering within same group
           const toIndex = calculateInsertionIndex(e);
-          if (sourceIndex !== toIndex && sourceIndex !== toIndex - 1) {
-            reorderInGroup(group.id, sourceIndex, toIndex > sourceIndex ? toIndex - 1 : toIndex);
+
+          // Check if multiple items are selected
+          const isSelected = selectedUrls.has(draggedUrl);
+          const selectedCount = selectedUrls.size;
+
+          if (isSelected && selectedCount > 1) {
+            // Multi-select reorder: use moveImages
+            // Adjust the target index to account for items being removed
+            // Count how many dragged items have indices less than toIndex
+            const draggedIndices = dragState.draggedUrls
+              .map((url) => group.images.findIndex((img) => img.url === url))
+              .filter((idx) => idx >= 0 && idx < toIndex);
+            const adjustedIndex = toIndex - draggedIndices.length;
+
+            moveImages(dragState.draggedUrls, group.id, adjustedIndex);
+          } else {
+            // Single item reorder
+            if (sourceIndex !== toIndex && sourceIndex !== toIndex - 1) {
+              reorderInGroup(group.id, sourceIndex, toIndex > sourceIndex ? toIndex - 1 : toIndex);
+            }
           }
         }
       } catch {
