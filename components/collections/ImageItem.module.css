@@ -48,6 +48,42 @@
   flex-direction: column;
   overflow: hidden;
   flex-shrink: 0;
+  padding: 0;
+  gap: 0;
+}
+
+/* Grid toolbar - always visible row at top */
+.gridToolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  background: var(--bg-item-hover);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.toolbarSpacer {
+  flex: 1;
+}
+
+.gridTrashBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.gridTrashBtn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--color-danger);
 }
 
 .checkboxWrapper {
@@ -145,19 +181,11 @@
 
 /* Grid view overrides */
 .grid .dragHandle {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  z-index: 1;
-  background: rgba(0, 0, 0, 0.5);
-  border-radius: 4px;
-  color: white;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.grid:hover .dragHandle {
-  opacity: 0.7;
+  position: static;
+  padding: 2px;
+  opacity: 0.6;
+  background: transparent;
+  color: var(--text-muted);
 }
 
 .grid .dragHandle:hover {
@@ -165,34 +193,22 @@
 }
 
 .grid .checkboxWrapper {
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  z-index: 1;
+  position: static;
+}
+
+.grid .checkboxWrapper input[type='checkbox'] {
+  width: 14px;
+  height: 14px;
 }
 
 .grid .thumbnail {
   width: 100%;
-  aspect-ratio: 1;
+  cursor: pointer;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
-.grid .info {
-  display: none;
-}
-
-.grid .actions {
-  position: absolute;
-  bottom: 4px;
-  right: 4px;
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 4px;
-  padding: 2px;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.grid:hover .actions {
-  opacity: 1;
+.grid .thumbnail:hover {
+  opacity: 0.9;
 }
 
 /* Drag states */

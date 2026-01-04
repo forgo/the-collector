@@ -32,17 +32,18 @@ export function ImageItem({ image, groupId, index, onPreview }: ImageItemProps) 
   const [dragOver, setDragOver] = useState<'before' | 'after' | null>(null);
 
   // Editable filename state - edit the full filename as-is (no extension splitting)
-  const displayFilename = image.customFilename || image.filename;
+  // Note: image.filename is base name without extension, so we append image.extension
+  const displayFilename = image.customFilename || image.filename + (image.extension || '');
   const [editingName, setEditingName] = useState(displayFilename);
   const [originalName, setOriginalName] = useState(displayFilename);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Update local state when image changes
   useEffect(() => {
-    const newDisplayFilename = image.customFilename || image.filename;
+    const newDisplayFilename = image.customFilename || image.filename + (image.extension || '');
     setEditingName(newDisplayFilename);
     setOriginalName(newDisplayFilename);
-  }, [image.customFilename, image.filename]);
+  }, [image.customFilename, image.filename, image.extension]);
 
   const isSelected = selectedUrls.has(image.url);
   const isDragging = dragState.isDragging && dragState.draggedUrls.includes(image.url);
@@ -174,18 +175,88 @@ export function ImageItem({ image, groupId, index, onPreview }: ImageItemProps) 
     setDragOver(null);
   };
 
+  // Grid view has a different layout with a top toolbar
+  if (viewMode === 'grid') {
+    return (
+      <li
+        ref={itemRef}
+        className={clsx(
+          styles.imageItem,
+          styles.grid,
+          isSelected && styles.selected,
+          isDragging && styles.dragging,
+          dragOver === 'before' && styles.dragOverBefore,
+          dragOver === 'after' && styles.dragOverAfter,
+          isNewlyAdded && styles.newlyAdded
+        )}
+        draggable={false}
+        data-url={image.url}
+        data-index={index}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        {/* Top toolbar: drag handle, checkbox, spacer, trash */}
+        <div className={styles.gridToolbar}>
+          <div
+            className={styles.dragHandle}
+            draggable
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            title="Drag to reorder"
+          >
+            <Icon name="drag-handle" size={12} />
+          </div>
+          <div className={styles.checkboxWrapper} onClick={handleCheckboxClick}>
+            <input
+              type="checkbox"
+              checked={isSelected}
+              onChange={() => toggleSelection(image.url)}
+            />
+          </div>
+          <div className={styles.toolbarSpacer} />
+          <button className={styles.gridTrashBtn} onClick={handleRemove} title="Remove">
+            <Icon name="trash" size={12} />
+          </button>
+        </div>
+
+        {/* Thumbnail - click to preview */}
+        <div
+          className={styles.thumbnail}
+          style={{ width: thumbnailSize, height: thumbnailSize }}
+          onClick={handleClick}
+          draggable={false}
+        >
+          {!imageError ? (
+            <img
+              src={image.url}
+              alt={image.filename}
+              loading="lazy"
+              draggable={false}
+              onError={() => setImageError(true)}
+            />
+          ) : (
+            <div className={styles.thumbnailError}>Failed to load</div>
+          )}
+        </div>
+      </li>
+    );
+  }
+
+  // List view
   return (
     <li
       ref={itemRef}
       className={clsx(
         styles.imageItem,
-        styles[viewMode],
+        styles.list,
         isSelected && styles.selected,
         isDragging && styles.dragging,
         dragOver === 'before' && styles.dragOverBefore,
         dragOver === 'after' && styles.dragOverAfter,
         isNewlyAdded && styles.newlyAdded
       )}
+      draggable={false}
       onClick={handleClick}
       data-url={image.url}
       data-index={index}
@@ -209,19 +280,16 @@ export function ImageItem({ image, groupId, index, onPreview }: ImageItemProps) 
 
       <div
         className={styles.thumbnail}
-        style={{
-          width: thumbnailSize,
-          height: viewMode === 'grid' ? thumbnailSize : 'auto',
-        }}
+        style={{ width: thumbnailSize, height: 'auto' }}
+        draggable={false}
       >
         {!imageError ? (
           <img
             src={image.url}
             alt={image.filename}
             loading="lazy"
-            onError={() => {
-              setImageError(true);
-            }}
+            draggable={false}
+            onError={() => setImageError(true)}
           />
         ) : (
           <div className={styles.thumbnailError}>Failed to load</div>
@@ -229,23 +297,17 @@ export function ImageItem({ image, groupId, index, onPreview }: ImageItemProps) 
       </div>
 
       <div className={styles.info}>
-        {viewMode === 'list' ? (
-          <input
-            ref={inputRef}
-            type="text"
-            className={styles.filenameInput}
-            value={editingName}
-            onChange={handleFilenameChange}
-            onBlur={handleFilenameSave}
-            onKeyDown={handleFilenameKeyDown}
-            onClick={handleFilenameClick}
-            title="Click to edit filename"
-          />
-        ) : (
-          <span className={styles.filename} title={displayFilename}>
-            {displayFilename}
-          </span>
-        )}
+        <input
+          ref={inputRef}
+          type="text"
+          className={styles.filenameInput}
+          value={editingName}
+          onChange={handleFilenameChange}
+          onBlur={handleFilenameSave}
+          onKeyDown={handleFilenameKeyDown}
+          onClick={handleFilenameClick}
+          title="Click to edit filename"
+        />
         {settings.showDimensions && image.width && image.height && (
           <span className={styles.dimensions}>
             {image.width} × {image.height}

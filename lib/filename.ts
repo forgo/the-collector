@@ -17,6 +17,18 @@ const IMAGE_EXTENSIONS = new Set([
   '.tif',
 ]);
 
+/**
+ * Check if a filename ends with a valid image extension
+ */
+export function hasImageExtension(filename: string): boolean {
+  if (!filename) return false;
+  const match = filename.match(/(\.[^.]+)$/);
+  if (match) {
+    return IMAGE_EXTENSIONS.has(match[1].toLowerCase());
+  }
+  return false;
+}
+
 export interface FilenameContext {
   name: string;
   extension: string;

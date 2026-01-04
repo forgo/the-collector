@@ -28,6 +28,7 @@ interface DownloadSummary {
   completed: number;
   failed: number;
   errors: Array<{ url: string; error: string }>;
+  lastDownloadId?: number; // ID of a successful download (for opening folder)
 }
 
 // Download state tracking
@@ -37,6 +38,7 @@ const downloadState = {
   failed: 0,
   total: 0,
   errors: [] as Array<{ url: string; error: string }>,
+  lastDownloadId: undefined as number | undefined,
 };
 
 /**
@@ -48,6 +50,7 @@ function resetDownloadState(): void {
   downloadState.failed = 0;
   downloadState.total = 0;
   downloadState.errors = [];
+  downloadState.lastDownloadId = undefined;
 }
 
 /**
@@ -69,12 +72,34 @@ export function getDownloadProgress(): DownloadProgress {
 }
 
 /**
+ * Sanitize a filename for the browser downloads API.
+ * Replaces characters that Firefox/Chrome consider illegal.
+ */
+function sanitizeFilename(filename: string): string {
+  return (
+    filename
+      // Replace various Unicode whitespace with regular space
+      .replace(/[\u00A0\u2000-\u200A\u202F\u205F\u3000]/g, ' ')
+      // Remove zero-width characters
+      .replace(/[\u200B-\u200D\uFEFF]/g, '')
+      // Remove control characters (0x00-0x1F and 0x7F)
+      // eslint-disable-next-line no-control-regex
+      .replace(/[\x00-\x1F\x7F]/g, '')
+      // Replace characters illegal in Windows filenames (Firefox is strict about these)
+      .replace(/[<>:"|?*]/g, '_')
+      // Trim whitespace
+      .trim()
+  );
+}
+
+/**
  * Build a file path from directory and filename
  */
 function buildFilePath(directory: string, filename: string): string {
-  if (!directory) return filename;
+  const cleanFilename = sanitizeFilename(filename);
+  if (!directory) return cleanFilename;
   const cleanDir = directory.replace(/[/\\]+$/, '');
-  return cleanDir + '/' + filename;
+  return cleanDir + '/' + cleanFilename;
 }
 
 /**
@@ -101,9 +126,11 @@ async function downloadSingle(item: DownloadItem): Promise<DownloadResult> {
       url: item.url,
     };
   } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error('[Download] Failed:', { filename: filePath, error: errorMsg });
     return {
       success: false,
-      error: error instanceof Error ? error.message : String(error),
+      error: errorMsg,
       url: item.url,
     };
   }
@@ -125,6 +152,9 @@ export async function downloadSequential(
 
     if (result.success) {
       downloadState.completed++;
+      if (result.downloadId) {
+        downloadState.lastDownloadId = result.downloadId;
+      }
     } else {
       downloadState.failed++;
       downloadState.errors.push({
@@ -144,6 +174,7 @@ export async function downloadSequential(
     completed: downloadState.completed,
     failed: downloadState.failed,
     errors: downloadState.errors,
+    lastDownloadId: downloadState.lastDownloadId,
   };
 }
 
@@ -170,6 +201,7 @@ export async function downloadParallel(
           completed: downloadState.completed,
           failed: downloadState.failed,
           errors: downloadState.errors,
+          lastDownloadId: downloadState.lastDownloadId,
         });
       }
     }
@@ -185,6 +217,9 @@ export async function downloadParallel(
 
           if (result.success) {
             downloadState.completed++;
+            if (result.downloadId) {
+              downloadState.lastDownloadId = result.downloadId;
+            }
           } else {
             downloadState.failed++;
             downloadState.errors.push({
@@ -210,16 +245,45 @@ export async function downloadParallel(
 }
 
 /**
- * Sanitize a directory path for use in downloads
+ * Open the folder containing a downloaded file
+ */
+export async function showDownloadInFolder(downloadId: number): Promise<boolean> {
+  try {
+    await browser.downloads.show(downloadId);
+    return true;
+  } catch (error) {
+    console.error('Failed to show download in folder:', error);
+    return false;
+  }
+}
+
+/**
+ * Sanitize a directory path for use in browser downloads API.
+ * The browser only allows relative paths within the default Downloads folder.
+ * This strips absolute path prefixes and normalizes slashes.
+ * Note: We don't sanitize characters - the browser handles that automatically.
  */
 export function sanitizeDirectoryPath(path: string): string {
   if (!path) return '';
-  // Remove invalid characters and normalize slashes
-  return path
-    .replace(/[<>:"|?*]/g, '_')
+
+  const cleaned = path
+    // Normalize backslashes to forward slashes
     .replace(/\\/g, '/')
+    // Remove ~ or ~/ prefix (home directory - not valid for browser)
+    .replace(/^~\/?/, '')
+    // Remove Windows drive letters (C:/, D:/, etc.)
+    .replace(/^[a-zA-Z]:\//, '')
+    // Remove common absolute path prefixes that users might try
+    .replace(/^\/Users\/[^/]+\/Downloads\/?/i, '')
+    .replace(/^\/home\/[^/]+\/Downloads\/?/i, '')
+    // Remove Downloads/ prefix (with or without leading slash) - handles ~/Downloads/foo case
+    .replace(/^\/?Downloads\//i, '')
+    // Normalize multiple slashes
     .replace(/\/+/g, '/')
+    // Remove leading/trailing slashes
     .replace(/^\/|\/$/g, '');
+
+  return cleaned;
 }
 
 /**

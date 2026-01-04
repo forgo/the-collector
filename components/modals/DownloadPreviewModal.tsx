@@ -18,7 +18,12 @@ import {
   getSortedDirectories,
   getTreeStats,
 } from '@/lib/tree-builder';
-import { getFilenameFromUrl } from '@/lib/filename';
+import { getFilenameFromUrl, hasImageExtension, splitFilename } from '@/lib/filename';
+import {
+  sanitizeDirectoryPath,
+  downloadParallel,
+  showDownloadInFolder,
+} from '@/lib/download-manager';
 import type { ImageItem } from '@/types';
 import styles from './DownloadPreviewModal.module.css';
 
@@ -29,15 +34,29 @@ interface DownloadPreviewModalProps {
 
 // Helper to add a counter to a filename (macOS style: "file (1).png")
 function addCounterToFilename(filename: string, counter: number): string {
+  const { name, extension } = splitFilename(filename);
+  if (extension) {
+    return `${name} (${counter})${extension}`;
+  }
   return `${filename} (${counter})`;
 }
 
-// Helper to get effective filename: customFilename > filename > generated from URL
+// Helper to get effective filename: customFilename > filename+extension > generated from URL
 function getEffectiveFilename(image: ImageItem, usedFilenames: Set<string>): string {
-  // Priority: user-edited name, then auto-generated name, then parse from URL
-  let filename = image.customFilename || image.filename;
+  let filename: string;
 
-  if (!filename) {
+  if (image.customFilename) {
+    // User provided a custom filename
+    // If it doesn't have a valid image extension, append the original extension
+    // This ensures "a" becomes "a.png" but "a.jpg" stays "a.jpg"
+    filename = hasImageExtension(image.customFilename)
+      ? image.customFilename
+      : image.customFilename + (image.extension || '');
+  } else if (image.filename) {
+    // Use base filename + extension
+    filename = image.filename + (image.extension || '');
+  } else {
+    // Fallback to generating from URL
     return getFilenameFromUrl(image.url, usedFilenames);
   }
 
@@ -59,6 +78,7 @@ export function DownloadPreviewModal({ isOpen, onClose }: DownloadPreviewModalPr
   const { groups, ungrouped, selectedUrls, settings, clearAll, updateImageFilename } = useApp();
   const [scope, setScope] = useState<'all' | 'selected'>('all');
   const [includeUngrouped, setIncludeUngrouped] = useState(true);
+  const [openFolderWhenDone, setOpenFolderWhenDone] = useState(true);
   const [isDownloading, setIsDownloading] = useState(false);
   const [progress, setProgress] = useState({ completed: 0, failed: 0, total: 0 });
 
@@ -73,6 +93,8 @@ export function DownloadPreviewModal({ isOpen, onClose }: DownloadPreviewModalPr
 
     const selectedSet = scope === 'selected' ? selectedUrls : null;
     const usedFilenames = new Set<string>();
+    // Sanitize the root directory (browser only allows relative paths within Downloads)
+    const rootDir = sanitizeDirectoryPath(settings.downloadDirectory);
 
     groups.forEach((group) => {
       const dir = group.directory || group.name;
@@ -81,7 +103,7 @@ export function DownloadPreviewModal({ isOpen, onClose }: DownloadPreviewModalPr
         const filename = getEffectiveFilename(image, usedFilenames);
         usedFilenames.add(filename.toLowerCase());
         items.push({
-          directory: settings.downloadDirectory ? `${settings.downloadDirectory}/${dir}` : dir,
+          directory: rootDir ? `${rootDir}/${dir}` : dir,
           filename,
           url: image.url,
           group: group.name,
@@ -97,9 +119,7 @@ export function DownloadPreviewModal({ isOpen, onClose }: DownloadPreviewModalPr
         const filename = getEffectiveFilename(image, usedFilenames);
         usedFilenames.add(filename.toLowerCase());
         items.push({
-          directory: settings.downloadDirectory
-            ? `${settings.downloadDirectory}/${ungroupedDir}`
-            : ungroupedDir,
+          directory: rootDir ? `${rootDir}/${ungroupedDir}` : ungroupedDir,
           filename,
           url: image.url,
           groupId: null,
@@ -128,7 +148,6 @@ export function DownloadPreviewModal({ isOpen, onClose }: DownloadPreviewModalPr
     setProgress({ completed: 0, failed: 0, total: downloads.length });
 
     try {
-      const { downloadParallel } = await import('@/lib/download-manager');
       const result = await downloadParallel(
         downloads.map((d) => ({
           url: d.url,
@@ -141,6 +160,11 @@ export function DownloadPreviewModal({ isOpen, onClose }: DownloadPreviewModalPr
         },
         5
       );
+
+      // Open folder if requested and we have a successful download
+      if (openFolderWhenDone && result.lastDownloadId) {
+        await showDownloadInFolder(result.lastDownloadId);
+      }
 
       if (settings.clearOnDownload && result.completed > 0) {
         await clearAll();
@@ -155,7 +179,7 @@ export function DownloadPreviewModal({ isOpen, onClose }: DownloadPreviewModalPr
       setIsDownloading(false);
       onClose();
     }
-  }, [downloads, settings.clearOnDownload, clearAll, onClose]);
+  }, [downloads, settings.clearOnDownload, openFolderWhenDone, clearAll, onClose]);
 
   const progressValue =
     progress.total > 0 ? ((progress.completed + progress.failed) / progress.total) * 100 : 0;
@@ -178,6 +202,16 @@ export function DownloadPreviewModal({ isOpen, onClose }: DownloadPreviewModalPr
               onCheckedChange={(checked) => setIncludeUngrouped(!!checked)}
             />
             Include Ungrouped ({ungrouped.length})
+          </Flex>
+        </Text>
+
+        <Text as="label" size="2">
+          <Flex gap="2" align="center">
+            <Checkbox
+              checked={openFolderWhenDone}
+              onCheckedChange={(checked) => setOpenFolderWhenDone(!!checked)}
+            />
+            Open folder when finished
           </Flex>
         </Text>
 

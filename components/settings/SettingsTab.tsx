@@ -15,12 +15,12 @@ export function SettingsTab() {
           <SettingSection title="Download Settings">
             <SettingItem
               label="Root Download Folder"
-              tooltip="All downloaded images will be saved inside this folder. Group subfolders are created within it. Leave empty to use your browser's default download location."
+              tooltip="Subfolder name within your browser's Downloads directory. Group folders are created inside this. Leave empty to download directly to your Downloads folder."
             >
               <TextField.Root
                 value={settings.downloadDirectory}
                 onChange={(e) => updateSettings({ downloadDirectory: e.target.value })}
-                placeholder="e.g., my-images"
+                placeholder="e.g., collected-images"
                 style={{ width: '100%' }}
               />
             </SettingItem>
