@@ -174,6 +174,40 @@
 }
 
 /* ============================================
+   Radix Density Overrides
+   ============================================ */
+
+/* Override Radix spacing based on density setting */
+[data-density='compact'] .rt-Box[class*='rt-r-p'] {
+  padding: var(--spacing-sm) !important;
+}
+
+[data-density='compact'] .rt-Flex[class*='rt-r-gap'] {
+  gap: var(--spacing-sm) !important;
+}
+
+[data-density='spacious'] .rt-Box[class*='rt-r-p'] {
+  padding: var(--spacing-lg) !important;
+}
+
+[data-density='spacious'] .rt-Flex[class*='rt-r-gap'] {
+  gap: var(--spacing-md) !important;
+}
+
+/* Section spacing */
+[data-density='compact'] .setting-section {
+  margin-bottom: var(--spacing-md);
+}
+
+[data-density='comfortable'] .setting-section {
+  margin-bottom: var(--spacing-lg);
+}
+
+[data-density='spacious'] .setting-section {
+  margin-bottom: var(--spacing-xl);
+}
+
+/* ============================================
    Base Styles
    ============================================ */
 
@@ -181,9 +215,28 @@
   box-sizing: border-box;
 }
 
+/*
+ * Popup dimensions - change these values to resize the extension popup.
+ * The internal layout is fully responsive and will adapt automatically.
+ */
+:root {
+  --popup-width: 600px;
+  --popup-height: 600px;
+}
+
+html {
+  width: var(--popup-width);
+  min-width: var(--popup-width);
+  height: var(--popup-height);
+  min-height: var(--popup-height);
+  overflow: hidden;
+}
+
 body {
-  width: 600px;
-  height: 700px;
+  width: 100%;
+  min-width: 100%;
+  height: 100%;
+  min-height: 100%;
   padding: 0;
   margin: 0;
   font-family: var(--font-family);
@@ -195,16 +248,34 @@ body {
   overflow: hidden;
 }
 
+/* Windowed mode - fills the window */
+html.windowed,
 body.windowed {
   width: 100%;
   height: 100vh;
   min-width: 400px;
 }
 
-#root {
+/* Responsive flex containers - each level must have these properties */
+#root,
+.radix-themes {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
+  min-height: 0; /* Critical: allows flex children to shrink below content size */
+  width: 100%;
+}
+
+/* Radix portal z-index for dialogs */
+[data-radix-popper-content-wrapper] {
+  z-index: 9999 !important;
+}
+
+/* Radix dialog overlay */
+[data-radix-dialog-overlay] {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
 }
 
 /* ============================================

@@ -1,6 +1,17 @@
 # The Collector
 
+[![CI](https://github.com/forgo/the-collector/actions/workflows/ci.yml/badge.svg)](https://github.com/forgo/the-collector/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Chrome Web Store](https://img.shields.io/badge/Chrome-Web%20Store-4285F4?logo=googlechrome&logoColor=white)](https://chrome.google.com/webstore)
+[![Firefox Add-ons](https://img.shields.io/badge/Firefox-Add--ons-FF7139?logo=firefox&logoColor=white)](https://addons.mozilla.org)
+
 > Browser extension for collecting, organizing, and batch-downloading images from web pages
+
+## Install
+
+**Chrome:** [Chrome Web Store](https://chrome.google.com/webstore) _(coming soon)_
+
+**Firefox:** [Firefox Add-ons](https://addons.mozilla.org) _(coming soon)_
 
 ## Features
 
@@ -105,8 +116,8 @@ Access settings via the Settings tab:
 
 ### Prerequisites
 
-- Node.js 18+
-- npm
+- Node.js 22+
+- npm 10+
 
 ### Quick Start
 
@@ -191,13 +202,11 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 ## Contributing
 
-Contributions welcome! Please:
+Contributions welcome! See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for guidelines.
 
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Run `npm test` and `npm run lint`
-5. Submit a pull request
+## Security
+
+Found a vulnerability? See [SECURITY.md](.github/SECURITY.md) for reporting instructions.
 
 ## Changelog
 

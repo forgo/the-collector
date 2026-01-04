@@ -1,58 +1,47 @@
 /* SettingsTab.module.css */
 
 .settingsTab {
-  flex: 1;
-  overflow-y: auto;
-}
-
-.content {
-  padding: 16px;
-  background: var(--bg-body);
-}
-
-.sliderRow {
   display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.sliderRow input[type='range'] {
+  flex-direction: column;
   flex: 1;
-  height: 6px;
-  -webkit-appearance: none;
+  min-height: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+.scrollArea {
+  flex: 1;
+  width: 100%;
+}
+
+/* Native select styled to match Radix UI appearance */
+.nativeSelect {
+  width: 100%;
+  height: 32px;
+  padding: 0 28px 0 10px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--gray-12);
+  background-color: var(--color-surface);
+  border: 1px solid var(--gray-6);
+  border-radius: var(--radius-2);
+  cursor: pointer;
   appearance: none;
-  background: var(--border-color);
-  border-radius: 3px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B7280' d='M2.5 4.5L6 8l3.5-3.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+
+.nativeSelect:hover {
+  border-color: var(--gray-8);
+}
+
+.nativeSelect:focus {
   outline: none;
+  border-color: var(--accent-8);
+  box-shadow: 0 0 0 1px var(--accent-8);
 }
 
-.sliderRow input[type='range']::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--color-primary);
-  cursor: pointer;
-  border: 2px solid var(--bg-content);
-  box-shadow: var(--shadow-sm);
-}
-
-.sliderRow input[type='range']::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--color-primary);
-  cursor: pointer;
-  border: 2px solid var(--bg-content);
-  box-shadow: var(--shadow-sm);
-}
-
-.sliderValue {
-  min-width: 50px;
-  text-align: right;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  font-family: var(--font-mono);
+.nativeSelect option {
+  padding: 8px;
 }

@@ -1,20 +1,58 @@
-/* Tooltip.module.css */
+/* Tooltip.module.css - Simple CSS tooltip without portals */
+
+.trigger {
+  position: relative;
+  display: inline-flex;
+}
 
 .tooltip {
   position: absolute;
-  top: 0;
-  left: 0;
-  background: var(--bg-tooltip);
-  color: var(--text-inverse);
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: var(--radius-lg);
-  font-size: var(--font-size-sm);
-  font-weight: normal;
-  white-space: normal;
-  width: max-content;
-  max-width: 240px;
+  z-index: 1000;
+  padding: 6px 10px;
+  font-size: 12px;
   line-height: 1.4;
-  z-index: 10001;
-  box-shadow: var(--shadow-md);
+  color: white;
+  background-color: var(--gray-12, #1a1a1a);
+  border-radius: 4px;
+  white-space: normal;
+  max-width: 250px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
   pointer-events: none;
+  animation: fadeIn 0.15s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Placement styles */
+.top {
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.bottom {
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.left {
+  right: calc(100% + 6px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.right {
+  left: calc(100% + 6px);
+  top: 50%;
+  transform: translateY(-50%);
 }

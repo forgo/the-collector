@@ -1,7 +1,8 @@
 /* PreviewModal.module.css */
 
 .previewModal {
-  position: fixed;
+  /* Use absolute positioning for Firefox popup compatibility */
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;

@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
+import { Theme } from '@radix-ui/themes';
 import clsx from 'clsx';
 import { AppProvider, useApp } from '@/context/AppContext';
 import { Tabs } from '@/components/layout/Tabs';
@@ -7,6 +8,7 @@ import { SettingsTab } from '@/components/settings/SettingsTab';
 import { ExternalDropOverlay } from '@/components/common/ExternalDropOverlay';
 import { DropSelectionModal } from '@/components/modals/DropSelectionModal';
 import { parseDropData, toImageItems, MEDIA_TYPES, type ParsedDropItem } from '@/utils/drop-parser';
+import '@radix-ui/themes/styles.css';
 import '@/styles/global.css';
 import styles from './App.module.css';
 
@@ -25,8 +27,10 @@ function AppContent() {
   useEffect(() => {
     const checkWindowedMode = () => {
       if (window.innerWidth > 650 || window.innerHeight > 720) {
+        document.documentElement.classList.add('windowed');
         document.body.classList.add('windowed');
       } else {
+        document.documentElement.classList.remove('windowed');
         document.body.classList.remove('windowed');
       }
     };
@@ -102,15 +106,8 @@ function AppContent() {
       const groupSection = target.closest('[data-group-id]');
       const targetGroupId = groupSection?.getAttribute('data-group-id') ?? null;
 
-      console.log('[Drop Debug] Available types:', Array.from(dt.types));
-      console.log('[Drop Debug] Files count:', dt.files?.length);
-      console.log('[Drop Debug] Target group:', targetGroupId);
-
       // Parse all potential images from the drop
       const dropData = parseDropData(dt);
-
-      console.log('[Drop Debug] Parsed items:', dropData.items.length);
-      console.log('[Drop Debug] Recommended:', dropData.recommended.length);
 
       // Filter to only image items
       const imageItems = dropData.items.filter(
@@ -118,14 +115,12 @@ function AppContent() {
       );
 
       if (imageItems.length === 0) {
-        console.log('[Drop Debug] No valid images found');
         return;
       }
 
       // If single image, add directly to target group
       if (imageItems.length === 1) {
         const images = toImageItems(imageItems);
-        console.log('[Drop Debug] Adding single image to group:', targetGroupId);
         await addImages(images, targetGroupId ?? undefined);
         return;
       }
@@ -137,13 +132,11 @@ function AppContent() {
 
       if (!hasNonRecommended) {
         const images = toImageItems(imageItems);
-        console.log('[Drop Debug] Adding all recommended images to group:', targetGroupId);
         await addImages(images, targetGroupId ?? undefined);
         return;
       }
 
       // Show selection modal for multiple items with mixed recommendations
-      console.log('[Drop Debug] Showing selection modal for', imageItems.length, 'items');
       setExternalDropTargetGroupId(targetGroupId);
       setDropSelectionItems(imageItems);
       setShowDropSelection(true);
@@ -158,8 +151,6 @@ function AppContent() {
       const clipboardData = e.clipboardData;
       if (!clipboardData) return;
 
-      console.log('[Paste Debug] Clipboard types:', Array.from(clipboardData.types));
-
       // Check if there's HTML content (from selection copy) or image files
       const hasHtml = clipboardData.types.includes('text/html');
       const hasFiles = clipboardData.types.includes('Files');
@@ -168,7 +159,6 @@ function AppContent() {
       if (hasHtml || hasFiles) {
         // Parse clipboard data using the same parser as drag & drop
         const dropData = parseDropData(clipboardData);
-        console.log('[Paste Debug] Parsed items:', dropData.items.length);
 
         // Filter to only image items
         const imageItems = dropData.items.filter(
@@ -197,7 +187,6 @@ function AppContent() {
           if (processedItems.length === 1) {
             // Single image, add directly
             const images = toImageItems(processedItems);
-            console.log('[Paste Debug] Adding single image from paste');
             await addImages(images);
           } else if (processedItems.length > 1) {
             // Multiple images - check if all are recommended
@@ -208,15 +197,9 @@ function AppContent() {
             if (!hasNonRecommended) {
               // All recommended, add all
               const images = toImageItems(processedItems);
-              console.log('[Paste Debug] Adding', images.length, 'images from paste');
               await addImages(images);
             } else {
               // Show selection modal for mixed items
-              console.log(
-                '[Paste Debug] Showing selection modal for',
-                processedItems.length,
-                'items'
-              );
               setDropSelectionItems(processedItems);
               setShowDropSelection(true);
             }
@@ -232,7 +215,6 @@ function AppContent() {
         textData.startsWith('http') &&
         /\.(jpg|jpeg|png|gif|webp|svg|bmp|ico)(\?|$)/i.test(textData)
       ) {
-        console.log('[Paste Debug] Image URL pasted:', textData.substring(0, 50));
         e.preventDefault();
 
         // Extract filename from URL
@@ -392,10 +374,50 @@ function AppContent() {
   );
 }
 
+// Map UI scale to Radix scaling
+const SCALE_MAP: Record<string, '90%' | '95%' | '100%' | '105%' | '110%'> = {
+  small: '90%',
+  medium: '100%',
+  large: '110%',
+};
+
+// Wrapper that applies Theme with settings from context
+function ThemedApp() {
+  const { settings } = useApp();
+
+  // Map our accent color setting to Radix accent colors
+  const accentColor = (settings.theme || 'blue') as
+    | 'blue'
+    | 'indigo'
+    | 'violet'
+    | 'purple'
+    | 'pink'
+    | 'red'
+    | 'orange'
+    | 'amber'
+    | 'green'
+    | 'teal'
+    | 'cyan';
+
+  const scaling = SCALE_MAP[settings.uiScale] || '100%';
+
+  // Apply density to document root for CSS variable switching
+  useEffect(() => {
+    const density = settings.density || 'comfortable';
+    document.documentElement.setAttribute('data-density', density);
+  }, [settings.density]);
+
+  return (
+    <Theme appearance="light" accentColor={accentColor} radius="medium" scaling={scaling}>
+      <AppContent />
+    </Theme>
+  );
+}
+
 function App() {
   return (
     <AppProvider>
-      <AppContent />
+      <ThemedApp />
     </AppProvider>
   );
 }

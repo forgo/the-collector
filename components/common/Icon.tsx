@@ -1,22 +1,22 @@
 import {
-  ArrowDownTrayIcon,
-  ArrowUpTrayIcon,
+  DownloadIcon,
+  UploadIcon,
   TrashIcon,
   PlusIcon,
   MinusIcon,
-  XMarkIcon,
+  Cross2Icon,
   CheckIcon,
-  PencilIcon,
-  FolderPlusIcon,
-  FolderIcon,
-  RectangleGroupIcon,
-  Bars3Icon,
-  Squares2X2Icon,
-  CheckCircleIcon,
-  XCircleIcon,
-  QuestionMarkCircleIcon,
-  InformationCircleIcon,
-  ExclamationCircleIcon,
+  Pencil2Icon,
+  PlusCircledIcon,
+  FileIcon,
+  StackIcon,
+  HamburgerMenuIcon,
+  DashboardIcon,
+  CheckCircledIcon,
+  CrossCircledIcon,
+  QuestionMarkCircledIcon,
+  InfoCircledIcon,
+  ExclamationTriangleIcon,
   ArrowRightIcon,
   ArrowLeftIcon,
   ArrowUpIcon,
@@ -25,39 +25,46 @@ import {
   ChevronLeftIcon,
   ChevronDownIcon,
   ChevronUpIcon,
-  ArrowTopRightOnSquareIcon,
-  ArrowsPointingOutIcon,
+  ExternalLinkIcon,
+  EnterFullScreenIcon,
   MagnifyingGlassIcon,
-  MagnifyingGlassPlusIcon,
-  Cog6ToothIcon,
-  PhotoIcon,
-  ArrowRightEndOnRectangleIcon,
-  EyeIcon,
+  ZoomInIcon,
+  GearIcon,
+  ImageIcon,
+  ExitIcon,
+  EyeOpenIcon,
   PlayIcon,
-} from '@heroicons/react/24/outline';
-import type { ComponentType, SVGProps } from 'react';
+} from '@radix-ui/react-icons';
+import type { ComponentType } from 'react';
 
-// Map old icon names to heroicon components
-const ICON_MAP: Record<string, ComponentType<SVGProps<SVGSVGElement>>> = {
-  download: ArrowDownTrayIcon,
-  upload: ArrowUpTrayIcon,
+// Icon component props from Radix
+interface RadixIconProps {
+  width?: number | string;
+  height?: number | string;
+  className?: string;
+}
+
+// Map icon names to Radix icon components
+const ICON_MAP: Record<string, ComponentType<RadixIconProps>> = {
+  download: DownloadIcon,
+  upload: UploadIcon,
   trash: TrashIcon,
   plus: PlusIcon,
   minus: MinusIcon,
-  'x-mark': XMarkIcon,
+  'x-mark': Cross2Icon,
   check: CheckIcon,
-  pencil: PencilIcon,
-  'folder-plus': FolderPlusIcon,
-  folder: FolderIcon,
-  'rectangle-group': RectangleGroupIcon,
-  list: Bars3Icon,
-  grid: Squares2X2Icon,
-  'check-circle': CheckCircleIcon,
-  'x-circle': XCircleIcon,
-  'question-mark-circle': QuestionMarkCircleIcon,
-  'information-circle': InformationCircleIcon,
-  info: InformationCircleIcon,
-  'exclamation-circle': ExclamationCircleIcon,
+  pencil: Pencil2Icon,
+  'folder-plus': PlusCircledIcon, // No folder icon in Radix, using PlusCircledIcon
+  folder: FileIcon, // No folder icon in Radix, using FileIcon
+  'rectangle-group': StackIcon,
+  list: HamburgerMenuIcon,
+  grid: DashboardIcon,
+  'check-circle': CheckCircledIcon,
+  'x-circle': CrossCircledIcon,
+  'question-mark-circle': QuestionMarkCircledIcon,
+  'information-circle': InfoCircledIcon,
+  info: InfoCircledIcon,
+  'exclamation-circle': ExclamationTriangleIcon,
   'arrow-right': ArrowRightIcon,
   'arrow-left': ArrowLeftIcon,
   'arrow-up': ArrowUpIcon,
@@ -66,14 +73,14 @@ const ICON_MAP: Record<string, ComponentType<SVGProps<SVGSVGElement>>> = {
   'chevron-left': ChevronLeftIcon,
   'chevron-down': ChevronDownIcon,
   'chevron-up': ChevronUpIcon,
-  'arrow-top-right-on-square': ArrowTopRightOnSquareIcon,
-  'arrows-pointing-out': ArrowsPointingOutIcon,
+  'arrow-top-right-on-square': ExternalLinkIcon,
+  'arrows-pointing-out': EnterFullScreenIcon,
   'magnifying-glass': MagnifyingGlassIcon,
-  'magnifying-glass-plus': MagnifyingGlassPlusIcon,
-  'cog-6-tooth': Cog6ToothIcon,
-  photo: PhotoIcon,
-  'arrow-right-end-on-rectangle': ArrowRightEndOnRectangleIcon,
-  eye: EyeIcon,
+  'magnifying-glass-plus': ZoomInIcon,
+  'cog-6-tooth': GearIcon,
+  photo: ImageIcon,
+  'arrow-right-end-on-rectangle': ExitIcon,
+  eye: EyeOpenIcon,
   play: PlayIcon,
   gallery: PlayIcon,
 };
@@ -82,10 +89,10 @@ export interface IconProps {
   name: string;
   size?: number;
   className?: string;
-  strokeWidth?: number;
+  strokeWidth?: number; // Kept for API compatibility, but Radix icons don't use it
 }
 
-export function Icon({ name, size = 16, className = '', strokeWidth = 1.5 }: IconProps) {
+export function Icon({ name, size = 16, className = '' }: IconProps) {
   const IconComponent = ICON_MAP[name];
 
   if (!IconComponent) {
@@ -93,15 +100,7 @@ export function Icon({ name, size = 16, className = '', strokeWidth = 1.5 }: Ico
     return null;
   }
 
-  return (
-    <IconComponent
-      width={size}
-      height={size}
-      className={className}
-      strokeWidth={strokeWidth}
-      aria-hidden="true"
-    />
-  );
+  return <IconComponent width={size} height={size} className={className} aria-hidden="true" />;
 }
 
 export type IconName = keyof typeof ICON_MAP;

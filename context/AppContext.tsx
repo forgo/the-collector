@@ -132,43 +132,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   // Watch for storage changes (from other contexts like content script)
   // Using WXT's storage.watch() for consistent key handling
   useEffect(() => {
-    console.log('[AppContext] Setting up storage watchers');
-
     const unwatchGroups = groupsStorage.watch((newGroups) => {
-      console.log('[AppContext] Groups changed via watcher:', newGroups?.length ?? 0);
-      setState((prev) => {
-        console.log(
-          '[AppContext] Updating groups state:',
-          prev.groups.length,
-          '->',
-          newGroups?.length ?? 0
-        );
-        return { ...prev, groups: newGroups ?? [] };
-      });
+      setState((prev) => ({ ...prev, groups: newGroups ?? [] }));
     });
 
     const unwatchUngrouped = ungroupedStorage.watch((newUngrouped) => {
-      console.log('[AppContext] Ungrouped changed via watcher:', newUngrouped?.length ?? 0);
-      setState((prev) => {
-        console.log(
-          '[AppContext] Updating ungrouped state:',
-          prev.ungrouped.length,
-          '->',
-          newUngrouped?.length ?? 0
-        );
-        return { ...prev, ungrouped: newUngrouped ?? [] };
-      });
+      setState((prev) => ({ ...prev, ungrouped: newUngrouped ?? [] }));
     });
 
     const unwatchSettings = settingsStorage.watch((newSettings) => {
-      console.log('[AppContext] Settings changed via watcher');
       setState((prev) => ({ ...prev, settings: newSettings ?? DEFAULT_SETTINGS }));
     });
 
-    console.log('[AppContext] Storage watchers registered');
-
     return () => {
-      console.log('[AppContext] Removing storage watchers');
       unwatchGroups();
       unwatchUngrouped();
       unwatchSettings();

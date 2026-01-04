@@ -1,9 +1,17 @@
 import { useState, useMemo, useCallback, useRef } from 'react';
-import clsx from 'clsx';
-import { Modal } from './Modal';
+import {
+  Flex,
+  Text,
+  SegmentedControl,
+  Checkbox,
+  ScrollArea,
+  Progress,
+  Badge,
+} from '@radix-ui/themes';
 import { useApp } from '@/context/AppContext';
 import { Button } from '@/components/common/Button';
 import { Icon } from '@/components/common/Icon';
+import { Modal } from './Modal';
 import {
   detectConflicts,
   buildTreeStructure,
@@ -11,7 +19,6 @@ import {
   getTreeStats,
 } from '@/lib/tree-builder';
 import { getFilenameFromUrl } from '@/lib/filename';
-import { downloadParallel } from '@/lib/download-manager';
 import type { ImageItem } from '@/types';
 import styles from './DownloadPreviewModal.module.css';
 
@@ -23,11 +30,9 @@ interface DownloadPreviewModalProps {
 // Helper to get effective filename (customFilename or generated from URL)
 function getEffectiveFilename(image: ImageItem, usedFilenames: Set<string>): string {
   if (image.customFilename) {
-    // Use custom filename, but still need to handle conflicts
     let filename = image.customFilename;
     const lowerFilename = filename.toLowerCase();
 
-    // If this exact filename is already used, append a number
     if (usedFilenames.has(lowerFilename)) {
       const extMatch = filename.match(/(\.[^.]+)$/);
       const ext = extMatch ? extMatch[1] : '';
@@ -42,7 +47,6 @@ function getEffectiveFilename(image: ImageItem, usedFilenames: Set<string>): str
     }
     return filename;
   }
-  // Fall back to generating from URL
   return getFilenameFromUrl(image.url, usedFilenames);
 }
 
@@ -65,7 +69,6 @@ export function DownloadPreviewModal({ isOpen, onClose }: DownloadPreviewModalPr
     const selectedSet = scope === 'selected' ? selectedUrls : null;
     const usedFilenames = new Set<string>();
 
-    // Process groups
     groups.forEach((group) => {
       const dir = group.directory || group.name;
       group.images.forEach((image) => {
@@ -82,7 +85,6 @@ export function DownloadPreviewModal({ isOpen, onClose }: DownloadPreviewModalPr
       });
     });
 
-    // Process ungrouped
     if (includeUngrouped) {
       const ungroupedDir = settings.ungroupedDirectory || 'Ungrouped';
       ungrouped.forEach((image) => {
@@ -107,7 +109,6 @@ export function DownloadPreviewModal({ isOpen, onClose }: DownloadPreviewModalPr
   const directories = useMemo(() => getSortedDirectories(tree), [tree]);
   const stats = useMemo(() => getTreeStats(tree), [tree]);
 
-  // Handle filename changes from the tree - updates context and will trigger re-render
   const handleFilenameChange = useCallback(
     (url: string, newFilename: string, groupId: string | null) => {
       updateImageFilename(url, newFilename, groupId);
@@ -121,30 +122,25 @@ export function DownloadPreviewModal({ isOpen, onClose }: DownloadPreviewModalPr
     setIsDownloading(true);
     setProgress({ completed: 0, failed: 0, total: downloads.length });
 
-    console.log('Downloading:', downloads);
-
     try {
+      const { downloadParallel } = await import('@/lib/download-manager');
       const result = await downloadParallel(
         downloads.map((d) => ({
           url: d.url,
           filename: d.filename,
           directory: d.directory,
-          willRename: d.hasConflict, // Auto-rename conflicts
+          willRename: d.hasConflict,
         })),
         (completed, failed, total) => {
           setProgress({ completed, failed, total });
         },
-        5 // Concurrency limit
+        5
       );
 
-      console.log('Download complete:', result);
-
-      // If clearOnDownload is enabled, clear the collection
       if (settings.clearOnDownload && result.completed > 0) {
         await clearAll();
       }
 
-      // Show completion message
       if (result.failed > 0) {
         console.warn(`Download completed with ${result.failed} failures:`, result.errors);
       }
@@ -156,92 +152,83 @@ export function DownloadPreviewModal({ isOpen, onClose }: DownloadPreviewModalPr
     }
   }, [downloads, settings.clearOnDownload, clearAll, onClose]);
 
+  const progressValue =
+    progress.total > 0 ? ((progress.completed + progress.failed) / progress.total) * 100 : 0;
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Download Preview" className={styles.modal}>
-      <div className={styles.dialog}>
-        <div className={styles.scopeToggle}>
-          <button
-            className={clsx(styles.scopeBtn, scope === 'all' && styles.active)}
-            onClick={() => setScope('all')}
-          >
-            All
-          </button>
-          <button
-            className={clsx(styles.scopeBtn, scope === 'selected' && styles.active)}
-            onClick={() => setScope('selected')}
-          >
-            Selected
-          </button>
-        </div>
+    <Modal isOpen={isOpen} onClose={onClose} title="Download Preview" maxWidth="500px">
+      <Flex direction="column" gap="3">
+        <SegmentedControl.Root
+          value={scope}
+          onValueChange={(v) => setScope(v as 'all' | 'selected')}
+        >
+          <SegmentedControl.Item value="all">All</SegmentedControl.Item>
+          <SegmentedControl.Item value="selected">Selected</SegmentedControl.Item>
+        </SegmentedControl.Root>
 
-        <div className={styles.options}>
-          <label className={styles.option}>
-            <input
-              type="checkbox"
+        <Text as="label" size="2">
+          <Flex gap="2" align="center">
+            <Checkbox
               checked={includeUngrouped}
-              onChange={(e) => setIncludeUngrouped(e.target.checked)}
+              onCheckedChange={(checked) => setIncludeUngrouped(!!checked)}
             />
-            <span>Include Ungrouped ({ungrouped.length})</span>
-          </label>
-        </div>
+            Include Ungrouped ({ungrouped.length})
+          </Flex>
+        </Text>
 
-        <p className={styles.summary}>
-          {stats.total} image{stats.total !== 1 ? 's' : ''} to download
+        <Flex gap="2" align="center">
+          <Text size="2" weight="medium">
+            {stats.total} image{stats.total !== 1 ? 's' : ''} to download
+          </Text>
           {stats.conflicts > 0 && (
-            <span className={styles.conflictWarning}>
-              {' '}
-              ({stats.conflicts} conflict{stats.conflicts !== 1 ? 's' : ''})
-            </span>
+            <Badge color="orange" size="1">
+              {stats.conflicts} conflict{stats.conflicts !== 1 ? 's' : ''}
+            </Badge>
           )}
-        </p>
+        </Flex>
 
-        <div className={styles.treeContainer}>
-          {directories.map((dir) => (
-            <TreeFolder
-              key={dir}
-              name={dir}
-              files={tree[dir]}
-              onFilenameChange={handleFilenameChange}
-            />
-          ))}
-        </div>
+        <ScrollArea style={{ height: '250px' }}>
+          <Flex direction="column" gap="2">
+            {directories.map((dir) => (
+              <TreeFolder
+                key={dir}
+                name={dir}
+                files={tree[dir]}
+                onFilenameChange={handleFilenameChange}
+              />
+            ))}
+          </Flex>
+        </ScrollArea>
 
         {stats.conflicts > 0 && (
-          <div className={styles.conflictLegend}>
-            <span className={styles.legendItemConflict}>
-              Duplicate filename - will be auto-renamed
-            </span>
-          </div>
+          <Text size="1" color="orange">
+            Duplicate filenames will be auto-renamed
+          </Text>
         )}
 
         {isDownloading && (
-          <div className={styles.progressBar}>
-            <div
-              className={styles.progressFill}
-              style={{
-                width: `${((progress.completed + progress.failed) / progress.total) * 100}%`,
-              }}
-            />
-            <span className={styles.progressText}>
+          <Flex direction="column" gap="1">
+            <Progress value={progressValue} />
+            <Text size="1" color="gray" align="center">
               {progress.completed + progress.failed} / {progress.total}
               {progress.failed > 0 && ` (${progress.failed} failed)`}
-            </span>
-          </div>
+            </Text>
+          </Flex>
         )}
+      </Flex>
 
-        <div className={styles.buttons}>
-          <Button variant="default" onClick={onClose} disabled={isDownloading}>
-            Cancel
-          </Button>
-          <Button
-            variant="primary"
-            onClick={handleDownload}
-            disabled={stats.total === 0 || isDownloading}
-          >
-            {isDownloading ? 'Downloading...' : 'Download'}
-          </Button>
-        </div>
-      </div>
+      <Flex gap="3" mt="4" justify="end">
+        <Button variant="ghost" onClick={onClose} disabled={isDownloading}>
+          Cancel
+        </Button>
+        <Button
+          variant="primary"
+          onClick={handleDownload}
+          disabled={stats.total === 0 || isDownloading}
+        >
+          {isDownloading ? 'Downloading...' : 'Download'}
+        </Button>
+      </Flex>
     </Modal>
   );
 }
@@ -262,13 +249,24 @@ function TreeFolder({ name, files, onFilenameChange }: TreeFolderProps) {
 
   return (
     <div className={styles.treeFolder}>
-      <div className={styles.folderHeader} onClick={() => setIsExpanded(!isExpanded)}>
-        <Icon name={isExpanded ? 'folder' : 'folder'} size={16} />
-        <span className={styles.folderName}>{name}</span>
-        <span className={styles.folderCount}>({files.length})</span>
-      </div>
+      <Flex
+        align="center"
+        gap="2"
+        py="1"
+        style={{ cursor: 'pointer' }}
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <Icon name={isExpanded ? 'chevron-down' : 'chevron-right'} size={14} />
+        <Icon name="folder" size={16} />
+        <Text size="2" weight="medium">
+          {name}
+        </Text>
+        <Text size="1" color="gray">
+          ({files.length})
+        </Text>
+      </Flex>
       {isExpanded && (
-        <ul className={styles.folderFiles}>
+        <Flex direction="column" gap="1" pl="6">
           {files.map((file, index) => (
             <TreeFile
               key={`${file.url}-${index}`}
@@ -276,7 +274,7 @@ function TreeFolder({ name, files, onFilenameChange }: TreeFolderProps) {
               onFilenameChange={onFilenameChange}
             />
           ))}
-        </ul>
+        </Flex>
       )}
     </div>
   );
@@ -297,7 +295,6 @@ function TreeFile({ file, onFilenameChange }: TreeFileProps) {
   const [editValue, setEditValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Parse filename into name and extension
   const extMatch = file.filename.match(/(\.[^.]+)$/);
   const extension = extMatch ? extMatch[1] : '';
   const nameWithoutExt = extension ? file.filename.slice(0, -extension.length) : file.filename;
@@ -327,10 +324,15 @@ function TreeFile({ file, onFilenameChange }: TreeFileProps) {
   };
 
   return (
-    <li className={clsx(styles.treeFile, file.hasConflict && styles.conflict)}>
-      {file.hasConflict && <span className={styles.conflictIcon}>⚠</span>}
+    <Flex align="center" gap="2" py="1">
+      {file.hasConflict && (
+        <Text color="orange" size="1">
+          ⚠
+        </Text>
+      )}
+      <Icon name="photo" size={14} />
       {isEditing ? (
-        <div className={styles.fileEdit}>
+        <Flex gap="1" align="center">
           <input
             ref={inputRef}
             type="text"
@@ -340,17 +342,20 @@ function TreeFile({ file, onFilenameChange }: TreeFileProps) {
             onKeyDown={handleKeyDown}
             className={styles.fileInput}
           />
-          <span className={styles.fileExtension}>{extension}</span>
-        </div>
+          <Text size="2" color="gray">
+            {extension}
+          </Text>
+        </Flex>
       ) : (
-        <span
-          className={styles.fileName}
+        <Text
+          size="2"
           onDoubleClick={handleStartEdit}
+          style={{ cursor: 'text' }}
           title="Double-click to edit"
         >
           {file.filename}
-        </span>
+        </Text>
       )}
-    </li>
+    </Flex>
   );
 }

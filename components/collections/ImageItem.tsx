@@ -219,9 +219,7 @@ export function ImageItem({ image, groupId, index, onPreview }: ImageItemProps) 
             src={image.url}
             alt={image.filename}
             loading="lazy"
-            onError={(e) => {
-              console.log('[ImageItem] Failed to load:', image.url);
-              console.log('[ImageItem] Error event:', e);
+            onError={() => {
               setImageError(true);
             }}
           />

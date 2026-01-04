@@ -1,0 +1,43 @@
+name: Publish to Firefox Add-ons
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  publish:
+    name: Publish to Firefox Add-ons
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and zip Firefox extension
+        run: npm run zip:firefox
+
+      - name: Get zip file path
+        id: zip
+        run: echo "PATH=$(ls .output/*-firefox-*.zip)" >> $GITHUB_OUTPUT
+
+      - name: Create source archive for AMO review
+        run: |
+          git archive --format=zip --output=.output/source.zip HEAD
+          echo "Source archive created for AMO code review requirements"
+
+      - name: Upload to Firefox Add-ons
+        uses: wdzeng/firefox-addon@v1
+        with:
+          addon-guid: ${{ secrets.FIREFOX_ADDON_GUID }}
+          xpi-path: ${{ steps.zip.outputs.PATH }}
+          source-path: .output/source.zip
+          jwt-issuer: ${{ secrets.FIREFOX_JWT_ISSUER }}
+          jwt-secret: ${{ secrets.FIREFOX_JWT_SECRET }}

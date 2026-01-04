@@ -6,8 +6,6 @@ export default defineContentScript({
   runAt: 'document_idle',
 
   main() {
-    console.log('[ContentScript] Content script loaded');
-
     // Track active elements
     let activeButtons: HTMLButtonElement[] = [];
     let activeDropdown: HTMLDivElement | null = null;
@@ -23,9 +21,7 @@ export default defineContentScript({
 
     // Save ungrouped images to storage
     async function saveUngrouped(ungrouped: ImageItem[]): Promise<void> {
-      console.log('[ContentScript] Saving ungrouped:', ungrouped.length);
       await ungroupedStorage.setValue(ungrouped);
-      console.log('[ContentScript] Saved ungrouped successfully');
     }
 
     // Load groups from storage
@@ -35,9 +31,7 @@ export default defineContentScript({
 
     // Save groups to storage
     async function saveGroups(groups: Group[]): Promise<void> {
-      console.log('[ContentScript] Saving groups:', groups.length);
       await groupsStorage.setValue(groups);
-      console.log('[ContentScript] Saved groups successfully');
     }
 
     // Extract filename and extension from URL
@@ -96,40 +90,25 @@ export default defineContentScript({
 
     // Add image to ungrouped or a specific group
     async function addImage(url: string, groupId: string | null): Promise<boolean> {
-      console.log('[ContentScript] addImage called:', {
-        url: url.substring(0, 50) + '...',
-        groupId,
-      });
-
       const [ungrouped, groups] = await Promise.all([loadUngrouped(), loadGroups()]);
-      console.log('[ContentScript] Current state:', {
-        ungroupedCount: ungrouped.length,
-        groupsCount: groups.length,
-      });
 
       // Check if already exists
       if (urlExists(url, ungrouped, groups)) {
-        console.log('[ContentScript] Image already exists, skipping');
         return false; // Already exists
       }
 
       const imageItem = createImageItem(url);
-      console.log('[ContentScript] Created imageItem:', imageItem);
 
       if (groupId) {
         // Add to specific group
         const updatedGroups = groups.map((g) =>
           g.id === groupId ? { ...g, images: [...g.images, imageItem] } : g
         );
-        console.log('[ContentScript] Saving to group:', groupId);
         await saveGroups(updatedGroups);
-        console.log('[ContentScript] Groups saved successfully');
       } else {
         // Add to ungrouped
         const newUngrouped = [...ungrouped, imageItem];
-        console.log('[ContentScript] Saving to ungrouped, new count:', newUngrouped.length);
         await saveUngrouped(newUngrouped);
-        console.log('[ContentScript] Ungrouped saved successfully');
       }
 
       return true;

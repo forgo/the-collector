@@ -1,8 +1,7 @@
-import clsx from 'clsx';
+import { Flex, Text, Badge, SegmentedControl } from '@radix-ui/themes';
 import { useApp } from '@/context/AppContext';
 import { Button } from '@/components/common/Button';
 import { IconButton } from '@/components/common/IconButton';
-import styles from './Header.module.css';
 
 interface HeaderProps {
   onDownload: () => void;
@@ -17,12 +16,26 @@ export function Header({ onDownload, onAddGroup, onGallery }: HeaderProps) {
   const selectedCount = getSelectedCount();
 
   return (
-    <div className={styles.header}>
-      <div className={styles.left}>
-        <h3 className={styles.title}>Collected Images</h3>
+    <Flex
+      align="center"
+      justify="between"
+      px="3"
+      py="2"
+      gap="3"
+      wrap="wrap"
+      style={{
+        borderBottom: '1px solid var(--gray-5)',
+        flexShrink: 0,
+        background: 'var(--color-background)',
+      }}
+    >
+      <Flex align="center" gap="2">
+        <Text weight="bold" size="3">
+          Collected Images
+        </Text>
         {selectedCount > 0 && (
-          <span className={clsx(styles.selection, styles.selectionVisible)}>
-            <span className={styles.selectionCount}>{selectedCount} selected</span>
+          <Flex align="center" gap="2">
+            <Badge color="blue">{selectedCount} selected</Badge>
             <Button
               variant="primary"
               size="sm"
@@ -30,46 +43,39 @@ export function Header({ onDownload, onAddGroup, onGallery }: HeaderProps) {
               onClick={onAddGroup}
               title="Add selected to new group"
             />
-          </span>
+          </Flex>
         )}
-      </div>
-      <div className={styles.actions}>
-        <div className={clsx(styles.viewToggle, styles.btnGroup)}>
-          <IconButton
-            icon="list"
-            size="sm"
-            active={viewMode === 'list'}
-            onClick={() => setViewMode('list')}
-            title="List view"
-          />
-          <IconButton
-            icon="grid"
-            size="sm"
-            active={viewMode === 'grid'}
-            onClick={() => setViewMode('grid')}
-            title="Grid view"
-          />
-        </div>
-        <div className={styles.btnGroup}>
-          <IconButton
-            icon="check-circle"
-            size="sm"
-            onClick={selectAllImages}
-            title="Select all images"
-          />
-          <IconButton icon="x-circle" size="sm" onClick={deselectAll} title="Deselect all images" />
-        </div>
+      </Flex>
+
+      <Flex align="center" gap="2" wrap="wrap">
+        <SegmentedControl.Root
+          size="1"
+          value={viewMode}
+          onValueChange={(v) => setViewMode(v as 'list' | 'grid')}
+        >
+          <SegmentedControl.Item value="list">List</SegmentedControl.Item>
+          <SegmentedControl.Item value="grid">Grid</SegmentedControl.Item>
+        </SegmentedControl.Root>
+
+        <Flex gap="1">
+          <IconButton icon="check-circle" size="sm" onClick={selectAllImages} label="Select all" />
+          <IconButton icon="x-circle" size="sm" onClick={deselectAll} label="Deselect all" />
+        </Flex>
+
         <Button variant="primary" size="sm" icon="folder-plus" onClick={onAddGroup}>
           New
         </Button>
-        <IconButton icon="play" size="sm" onClick={onGallery} title="Open gallery slideshow" />
+
+        <IconButton icon="play" size="sm" onClick={onGallery} label="Open gallery" />
+
         <Button variant="default" size="sm" icon="download" onClick={onDownload}>
           Download
         </Button>
+
         <Button variant="danger" size="sm" icon="trash" onClick={clearAll}>
           Clear
         </Button>
-      </div>
-    </div>
+      </Flex>
+    </Flex>
   );
 }

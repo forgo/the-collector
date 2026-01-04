@@ -1,9 +1,27 @@
 {
   "name": "the-collector",
   "description": "Collect, organize, and batch-download images from web pages",
-  "private": true,
   "version": "2.0.0",
   "type": "module",
+  "author": "Elliott Richerson",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/forgo/the-collector.git"
+  },
+  "bugs": {
+    "url": "https://github.com/forgo/the-collector/issues"
+  },
+  "homepage": "https://github.com/forgo/the-collector#readme",
+  "keywords": [
+    "browser-extension",
+    "chrome-extension",
+    "firefox-addon",
+    "image-downloader",
+    "wxt",
+    "react",
+    "typescript"
+  ],
   "scripts": {
     "dev": "wxt",
     "dev:firefox": "wxt -b firefox",
@@ -32,8 +50,8 @@
     ]
   },
   "dependencies": {
-    "@floating-ui/react": "^0.27.16",
-    "@heroicons/react": "^2.2.0",
+    "@radix-ui/react-icons": "^1.3.2",
+    "@radix-ui/themes": "^3.2.1",
     "clsx": "^2.1.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"

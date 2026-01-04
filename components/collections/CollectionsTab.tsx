@@ -52,32 +52,34 @@ export function CollectionsTab() {
         onGallery={() => handleOpenGallery()}
       />
 
-      <div className={styles.mainContent}>
-        {groups.length > 0 && (
-          <div className={styles.groupsContainer}>
-            {groups.map((group) => (
-              <GroupCard
-                key={group.id}
-                group={group}
-                onPreviewImage={handlePreviewImage}
-                onEditDirectory={handleEditDirectory}
-                onGallery={handleOpenGallery}
-              />
-            ))}
-          </div>
-        )}
+      <div className={styles.mainContentWrapper}>
+        <div className={styles.mainContent}>
+          {groups.length > 0 && (
+            <div className={styles.groupsContainer}>
+              {groups.map((group) => (
+                <GroupCard
+                  key={group.id}
+                  group={group}
+                  onPreviewImage={handlePreviewImage}
+                  onEditDirectory={handleEditDirectory}
+                  onGallery={handleOpenGallery}
+                />
+              ))}
+            </div>
+          )}
 
-        <UngroupedSection
-          onPreviewImage={handlePreviewImage}
-          onEditDirectory={() => handleEditDirectory()}
-        />
+          <UngroupedSection
+            onPreviewImage={handlePreviewImage}
+            onEditDirectory={() => handleEditDirectory()}
+          />
 
-        {totalImages === 0 && (
-          <div className={styles.emptyState}>
-            <p>No images collected yet.</p>
-            <p>Hover over images on any webpage and click the collect button.</p>
-          </div>
-        )}
+          {totalImages === 0 && (
+            <div className={styles.emptyState}>
+              <p>No images collected yet.</p>
+              <p>Hover over images on any webpage and click the collect button.</p>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className={styles.footer}>

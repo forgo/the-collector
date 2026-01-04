@@ -1,9 +1,21 @@
 /* App.module.css */
 
+/*
+ * Responsive flex layout - each container in the chain needs:
+ * - display: flex + flex-direction: column
+ * - flex: 1 (to fill available space)
+ * - min-height: 0 (to allow shrinking below content size)
+ * - overflow: hidden (to contain children)
+ */
+
 .app {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  overflow: hidden;
+  position: relative; /* Required for modal positioning */
 }
 
 .loading {
@@ -21,8 +33,10 @@
 }
 
 .tabContent {
-  flex: 1;
   display: flex;
   flex-direction: column;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
   overflow: hidden;
 }

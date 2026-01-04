@@ -1,8 +1,8 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import type { ImageItem, Group } from '@/types';
+import type { ImageItem, Group, ThemeId } from '@/types';
 import { groupsStorage, ungroupedStorage, settingsStorage } from '@/lib/storage';
 import { DEFAULT_SETTINGS } from '@/lib/constants';
-import { applyTheme, type ThemeId } from '@/lib/themes';
+import { applyTheme } from '@/lib/themes';
 import styles from './Gallery.module.css';
 
 interface GalleryImage {

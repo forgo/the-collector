@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import clsx from 'clsx';
+import { Flex, Text, Badge, Checkbox, ScrollArea, Heading } from '@radix-ui/themes';
 import { Button } from '@/components/common/Button';
+import { Modal } from './Modal';
 import { ITEM_HINTS, DROP_SOURCES, type ParsedDropItem } from '@/utils/drop-parser';
 import styles from './DropSelectionModal.module.css';
 
@@ -22,11 +23,17 @@ const SOURCE_LABELS: Record<string, string> = {
   [DROP_SOURCES.EMBEDDED]: 'Embedded',
 };
 
-// Hint labels for display
-const HINT_LABELS: Record<string, { text: string; className: string }> = {
-  [ITEM_HINTS.PRIMARY]: { text: 'Primary', className: 'hintPrimary' },
-  [ITEM_HINTS.DUPLICATE]: { text: 'Duplicate', className: 'hintDuplicate' },
-  [ITEM_HINTS.UI_ELEMENT]: { text: 'UI Element', className: 'hintUi' },
+// Hint badge colors
+const HINT_COLORS: Record<string, 'green' | 'orange' | 'gray'> = {
+  [ITEM_HINTS.PRIMARY]: 'green',
+  [ITEM_HINTS.DUPLICATE]: 'orange',
+  [ITEM_HINTS.UI_ELEMENT]: 'gray',
+};
+
+const HINT_LABELS: Record<string, string> = {
+  [ITEM_HINTS.PRIMARY]: 'Primary',
+  [ITEM_HINTS.DUPLICATE]: 'Duplicate',
+  [ITEM_HINTS.UI_ELEMENT]: 'UI Element',
 };
 
 export function DropSelectionModal({
@@ -42,7 +49,6 @@ export function DropSelectionModal({
   // Initialize selection when items change
   useEffect(() => {
     if (items.length > 0) {
-      // Pre-select recommended items (primary and unknown, not duplicates or UI elements)
       const initialSelected = new Set<number>();
       items.forEach((item, index) => {
         if (item.hint === ITEM_HINTS.PRIMARY || item.hint === ITEM_HINTS.UNKNOWN) {
@@ -93,48 +99,49 @@ export function DropSelectionModal({
     setImageErrors((prev) => new Set(prev).add(index));
   }, []);
 
-  if (!isOpen) return null;
-
   const selectedCount = selectedIndices.size;
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.header}>
-          <h3>Select Images to Add</h3>
-          <span className={styles.count}>
-            {selectedCount} of {items.length} selected
-          </span>
-        </div>
+    <Modal isOpen={isOpen} onClose={onClose} maxWidth="500px">
+      <Flex justify="between" align="center" mb="3">
+        <Heading size="4">Select Images to Add</Heading>
+        <Text size="2" color="gray">
+          {selectedCount} of {items.length} selected
+        </Text>
+      </Flex>
 
-        <div className={styles.actions}>
-          <Button size="sm" variant="ghost" onClick={selectAll}>
-            Select All
-          </Button>
-          <Button size="sm" variant="ghost" onClick={selectNone}>
-            Select None
-          </Button>
-          <Button size="sm" variant="ghost" onClick={selectRecommended}>
-            Recommended
-          </Button>
-        </div>
+      <Flex gap="2" mb="3">
+        <Button size="sm" variant="ghost" onClick={selectAll}>
+          Select All
+        </Button>
+        <Button size="sm" variant="ghost" onClick={selectNone}>
+          Select None
+        </Button>
+        <Button size="sm" variant="ghost" onClick={selectRecommended}>
+          Recommended
+        </Button>
+      </Flex>
 
-        <div className={styles.items}>
+      <ScrollArea style={{ height: '300px' }}>
+        <Flex direction="column" gap="2">
           {items.map((item, index) => {
             const isSelected = selectedIndices.has(index);
             const hasError = imageErrors.has(index);
-            const hintInfo = HINT_LABELS[item.hint];
 
             return (
-              <div
+              <Flex
                 key={index}
-                className={clsx(styles.item, isSelected && styles.selected)}
+                className={styles.item}
+                data-selected={isSelected}
+                gap="3"
+                align="center"
+                p="2"
                 onClick={() => toggleSelection(index)}
+                style={{ cursor: 'pointer' }}
               >
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={isSelected}
-                  onChange={() => toggleSelection(index)}
+                  onCheckedChange={() => toggleSelection(index)}
                   onClick={(e) => e.stopPropagation()}
                 />
 
@@ -150,40 +157,40 @@ export function DropSelectionModal({
                   )}
                 </div>
 
-                <div className={styles.info}>
-                  <div className={styles.filename} title={item.url}>
+                <Flex direction="column" gap="1" style={{ flex: 1, minWidth: 0 }}>
+                  <Text size="2" weight="medium" truncate title={item.url}>
                     {item.filename || 'Unknown'}
-                  </div>
-                  <div className={styles.meta}>
+                  </Text>
+                  <Flex gap="1" wrap="wrap">
                     {item.format && (
-                      <span className={clsx(styles.badge, styles.format)}>
+                      <Badge size="1" variant="soft">
                         {item.format.toUpperCase()}
-                      </span>
+                      </Badge>
                     )}
-                    <span className={clsx(styles.badge, styles.source)}>
+                    <Badge size="1" variant="soft" color="gray">
                       {SOURCE_LABELS[item.source] || item.source}
-                    </span>
-                    {hintInfo && (
-                      <span className={clsx(styles.badge, styles[hintInfo.className])}>
-                        {hintInfo.text}
-                      </span>
+                    </Badge>
+                    {HINT_LABELS[item.hint] && (
+                      <Badge size="1" variant="soft" color={HINT_COLORS[item.hint]}>
+                        {HINT_LABELS[item.hint]}
+                      </Badge>
                     )}
-                  </div>
-                </div>
-              </div>
+                  </Flex>
+                </Flex>
+              </Flex>
             );
           })}
-        </div>
+        </Flex>
+      </ScrollArea>
 
-        <div className={styles.footer}>
-          <Button variant="ghost" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={handleConfirm} disabled={selectedCount === 0}>
-            Add Selected {selectedCount > 0 && `(${selectedCount})`}
-          </Button>
-        </div>
-      </div>
-    </div>
+      <Flex gap="3" mt="4" justify="end">
+        <Button variant="ghost" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button variant="primary" onClick={handleConfirm} disabled={selectedCount === 0}>
+          Add Selected {selectedCount > 0 && `(${selectedCount})`}
+        </Button>
+      </Flex>
+    </Modal>
   );
 }

@@ -1,6 +1,5 @@
-import { useEffect } from 'react';
-import { createPortal } from 'react-dom';
-import clsx from 'clsx';
+import { useEffect, useRef } from 'react';
+import { Heading } from '@radix-ui/themes';
 import styles from './Modal.module.css';
 
 interface ModalProps {
@@ -9,39 +8,60 @@ interface ModalProps {
   title?: string;
   className?: string;
   children: React.ReactNode;
+  maxWidth?: string;
 }
 
-export function Modal({ isOpen, onClose, title, className, children }: ModalProps) {
+export function Modal({
+  isOpen,
+  onClose,
+  title,
+  className,
+  children,
+  maxWidth = '450px',
+}: ModalProps) {
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // Handle escape key
   useEffect(() => {
     if (!isOpen) return;
 
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
     };
 
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
+
+  // Focus trap - focus the modal when it opens
+  useEffect(() => {
+    if (isOpen && contentRef.current) {
+      contentRef.current.focus();
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
-  return createPortal(
+  return (
     <div className={styles.overlay} onClick={onClose}>
       <div
-        className={clsx(styles.dialog, className)}
+        ref={contentRef}
+        className={`${styles.content} ${className || ''}`}
+        style={{ maxWidth }}
         onClick={(e) => e.stopPropagation()}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
-        aria-labelledby={title ? 'modal-title' : undefined}
       >
         {title && (
-          <h4 id="modal-title" className={styles.title}>
+          <Heading size="4" mb="4">
             {title}
-          </h4>
+          </Heading>
         )}
         {children}
       </div>
-    </div>,
-    document.body
+    </div>
   );
 }

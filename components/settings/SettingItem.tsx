@@ -1,7 +1,6 @@
-import clsx from 'clsx';
+import { Flex, Text } from '@radix-ui/themes';
 import { Tooltip } from '@/components/common/Tooltip';
 import { Icon } from '@/components/common/Icon';
-import styles from './SettingItem.module.css';
 
 interface SettingItemProps {
   label: string;
@@ -12,18 +11,27 @@ interface SettingItemProps {
 
 export function SettingItem({ label, tooltip, checkbox, children }: SettingItemProps) {
   return (
-    <div className={clsx(styles.settingItem, checkbox && styles.checkbox)}>
-      <div className={styles.label}>
-        <span>{label}</span>
+    <Flex
+      justify="between"
+      align={checkbox ? 'center' : 'start'}
+      gap="3"
+      direction={checkbox ? 'row' : 'column'}
+    >
+      <Flex align="center" gap="1">
+        <Text as="label" size="2" weight="medium">
+          {label}
+        </Text>
         {tooltip && (
           <Tooltip content={tooltip}>
-            <span className={styles.info}>
+            <Text color="gray" style={{ cursor: 'help', display: 'flex' }}>
               <Icon name="info" size={14} />
-            </span>
+            </Text>
           </Tooltip>
         )}
-      </div>
-      <div className={styles.control}>{children}</div>
-    </div>
+      </Flex>
+      <Flex align="center" style={checkbox ? {} : { width: '100%' }}>
+        {children}
+      </Flex>
+    </Flex>
   );
 }

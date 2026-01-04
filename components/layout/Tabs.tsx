@@ -1,6 +1,6 @@
-import clsx from 'clsx';
+import { Tabs as RadixTabs, Flex } from '@radix-ui/themes';
 import { useApp } from '@/context/AppContext';
-import styles from './Tabs.module.css';
+import { IconButton } from '@/components/common/IconButton';
 
 export function Tabs() {
   const { activeTab, setActiveTab } = useApp();
@@ -11,22 +11,29 @@ export function Tabs() {
   };
 
   return (
-    <div className={styles.tabs}>
-      <button
-        className={clsx(styles.tab, { [styles.active]: activeTab === 'collections' })}
-        onClick={() => setActiveTab('collections')}
+    <Flex
+      align="center"
+      justify="between"
+      px="3"
+      py="2"
+      style={{ borderBottom: '1px solid var(--gray-5)', flexShrink: 0 }}
+    >
+      <RadixTabs.Root
+        value={activeTab}
+        onValueChange={(v) => setActiveTab(v as 'collections' | 'settings')}
       >
-        Collections
-      </button>
-      <button
-        className={clsx(styles.tab, { [styles.active]: activeTab === 'settings' })}
-        onClick={() => setActiveTab('settings')}
-      >
-        Settings
-      </button>
-      <button className={styles.undockBtn} onClick={handleUndock} title="Open in separate window">
-        <span className={styles.undockLabel}>Undock</span>
-      </button>
-    </div>
+        <RadixTabs.List>
+          <RadixTabs.Trigger value="collections">Collections</RadixTabs.Trigger>
+          <RadixTabs.Trigger value="settings">Settings</RadixTabs.Trigger>
+        </RadixTabs.List>
+      </RadixTabs.Root>
+
+      <IconButton
+        icon="arrow-top-right-on-square"
+        size="sm"
+        label="Open in separate window"
+        onClick={handleUndock}
+      />
+    </Flex>
   );
 }

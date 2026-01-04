@@ -36,5 +36,12 @@ export default defineConfig({
       extension_pages:
         "script-src 'self'; object-src 'self'; img-src 'self' https: http: data: blob:;",
     },
+    // Firefox Add-ons publishing configuration
+    browser_specific_settings: {
+      gecko: {
+        id: 'the-collector@forgo.dev',
+        strict_min_version: '109.0',
+      },
+    },
   },
 });

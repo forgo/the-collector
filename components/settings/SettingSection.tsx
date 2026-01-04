@@ -1,4 +1,4 @@
-import styles from './SettingSection.module.css';
+import { Box, Heading, Flex } from '@radix-ui/themes';
 
 interface SettingSectionProps {
   title: string;
@@ -7,9 +7,13 @@ interface SettingSectionProps {
 
 export function SettingSection({ title, children }: SettingSectionProps) {
   return (
-    <div className={styles.section}>
-      <h3 className={styles.title}>{title}</h3>
-      <div className={styles.content}>{children}</div>
-    </div>
+    <Box mb="5" className="setting-section">
+      <Heading size="3" mb="3">
+        {title}
+      </Heading>
+      <Flex direction="column" gap="3">
+        {children}
+      </Flex>
+    </Box>
   );
 }

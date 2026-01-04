@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Modal } from './Modal';
+import { Flex, Text, TextField } from '@radix-ui/themes';
 import { useApp } from '@/context/AppContext';
 import { Button } from '@/components/common/Button';
-import styles from './DirectoryEditModal.module.css';
+import { Modal } from './Modal';
 
 interface DirectoryEditModalProps {
   isOpen: boolean;
@@ -45,26 +45,28 @@ export function DirectoryEditModal({
     : 'Leave empty to use "Ungrouped" as the folder name.';
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={title} className={styles.modal}>
-      <div className={styles.dialog}>
-        <p className={styles.hint}>{hint}</p>
-        <input
-          type="text"
+    <Modal isOpen={isOpen} onClose={onClose} title={title} maxWidth="400px">
+      <Flex direction="column" gap="3">
+        <Text size="2" color="gray">
+          {hint}
+        </Text>
+        <TextField.Root
           value={directory}
           onChange={(e) => setDirectory(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="e.g., photos/vacation"
           autoFocus
         />
-        <div className={styles.buttons}>
-          <Button variant="default" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={handleSave}>
-            Save
-          </Button>
-        </div>
-      </div>
+      </Flex>
+
+      <Flex gap="3" mt="4" justify="end">
+        <Button variant="ghost" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button variant="primary" onClick={handleSave}>
+          Save
+        </Button>
+      </Flex>
     </Modal>
   );
 }

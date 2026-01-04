@@ -212,18 +212,8 @@ export default defineBackground(() => {
     try {
       // Remove old/stale keys (including legacy 'imageUrls' and current 'navigationStack')
       await browser.storage.local.remove(['imageUrls', 'navigationStack']);
-      console.log('Storage cleaned up on startup.');
     } catch (e) {
       console.error('Error removing storage keys:', e);
-    }
-  });
-
-  // Handle extension installation/update
-  browser.runtime.onInstalled.addListener((details) => {
-    if (details.reason === 'install') {
-      console.log('The Collector installed');
-    } else if (details.reason === 'update') {
-      console.log('The Collector updated to version', browser.runtime.getManifest().version);
     }
   });
 });
