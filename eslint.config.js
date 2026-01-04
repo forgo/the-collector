@@ -47,13 +47,6 @@ export default tseslint.config(
     },
   },
   {
-    ignores: [
-      '.output/',
-      '.wxt/',
-      'node_modules/',
-      'dist/',
-      '*.config.js',
-      '*.config.ts',
-    ],
+    ignores: ['.output/', '.wxt/', 'node_modules/', 'dist/', '*.config.js', '*.config.ts'],
   }
 );
