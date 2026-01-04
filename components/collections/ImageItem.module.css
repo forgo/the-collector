@@ -8,10 +8,27 @@
   background: var(--bg-item);
   border-radius: var(--radius-lg);
   border: var(--item-border-width) solid transparent;
-  cursor: grab;
+  cursor: default;
 }
 
-.imageItem:active {
+/* Drag handle */
+.dragHandle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  cursor: grab;
+  color: var(--text-muted);
+  opacity: 0.5;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+
+.dragHandle:hover {
+  opacity: 1;
+}
+
+.dragHandle:active {
   cursor: grabbing;
 }
 
@@ -147,6 +164,26 @@
 }
 
 /* Grid view overrides */
+.grid .dragHandle {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 1;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  color: white;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.grid:hover .dragHandle {
+  opacity: 0.7;
+}
+
+.grid .dragHandle:hover {
+  opacity: 1;
+}
+
 .grid .checkboxWrapper {
   position: absolute;
   top: 4px;
