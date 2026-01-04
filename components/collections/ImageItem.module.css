@@ -134,7 +134,7 @@
 }
 
 .filenameInput::selection {
-  background: var(--color-primary);
+  background: #4a90d9;
   color: white;
 }
 
