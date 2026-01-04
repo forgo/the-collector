@@ -1,12 +1,11 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <title>Icon Generator - The Collector</title>
     <style>
       body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         padding: 40px;
         background: #f5f5f5;
       }
@@ -51,9 +50,8 @@
     <h1>The Collector Icon Generator</h1>
 
     <div class="instructions">
-      <strong>Instructions:</strong> Click each "Download" button to save the
-      icon. Place the downloaded files in your extension's
-      <code>icons/</code> folder.
+      <strong>Instructions:</strong> Click each "Download" button to save the icon. Place the
+      downloaded files in your extension's <code>icons/</code> folder.
     </div>
 
     <div class="icon-row">
@@ -76,7 +74,7 @@
 
     <script>
       function drawIcon(canvas, size) {
-        const ctx = canvas.getContext("2d");
+        const ctx = canvas.getContext('2d');
         const scale = size / 128;
 
         // Clear canvas
@@ -84,8 +82,8 @@
 
         // Background - rounded square with gradient
         const gradient = ctx.createLinearGradient(0, 0, size, size);
-        gradient.addColorStop(0, "#4285f4");
-        gradient.addColorStop(1, "#1a73e8");
+        gradient.addColorStop(0, '#4285f4');
+        gradient.addColorStop(1, '#1a73e8');
 
         const radius = 20 * scale;
         ctx.beginPath();
@@ -94,19 +92,13 @@
         ctx.fill();
 
         // Image frame (white rectangle representing collected image)
-        ctx.fillStyle = "white";
+        ctx.fillStyle = 'white';
         ctx.beginPath();
-        ctx.roundRect(
-          24 * scale,
-          28 * scale,
-          60 * scale,
-          52 * scale,
-          4 * scale
-        );
+        ctx.roundRect(24 * scale, 28 * scale, 60 * scale, 52 * scale, 4 * scale);
         ctx.fill();
 
         // Mountain/landscape inside frame
-        ctx.fillStyle = "#a8d5a2";
+        ctx.fillStyle = '#a8d5a2';
         ctx.beginPath();
         ctx.moveTo(28 * scale, 72 * scale);
         ctx.lineTo(44 * scale, 52 * scale);
@@ -117,53 +109,35 @@
         ctx.fill();
 
         // Sun in frame
-        ctx.fillStyle = "#ffd54f";
+        ctx.fillStyle = '#ffd54f';
         ctx.beginPath();
         ctx.arc(70 * scale, 42 * scale, 8 * scale, 0, Math.PI * 2);
         ctx.fill();
 
         // Collection stack effect (additional frames behind)
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.6)";
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
         ctx.lineWidth = 3 * scale;
         ctx.beginPath();
-        ctx.roundRect(
-          34 * scale,
-          38 * scale,
-          60 * scale,
-          52 * scale,
-          4 * scale
-        );
+        ctx.roundRect(34 * scale, 38 * scale, 60 * scale, 52 * scale, 4 * scale);
         ctx.stroke();
 
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
         ctx.beginPath();
-        ctx.roundRect(
-          44 * scale,
-          48 * scale,
-          60 * scale,
-          52 * scale,
-          4 * scale
-        );
+        ctx.roundRect(44 * scale, 48 * scale, 60 * scale, 52 * scale, 4 * scale);
         ctx.stroke();
 
         // Plus sign (indicating "add to collection")
-        ctx.fillStyle = "white";
+        ctx.fillStyle = 'white';
         ctx.beginPath();
-        ctx.roundRect(
-          88 * scale,
-          78 * scale,
-          24 * scale,
-          24 * scale,
-          12 * scale
-        );
+        ctx.roundRect(88 * scale, 78 * scale, 24 * scale, 24 * scale, 12 * scale);
         ctx.fill();
 
-        ctx.fillStyle = "#1a73e8";
+        ctx.fillStyle = '#1a73e8';
         ctx.fillRect(96 * scale, 86 * scale, 8 * scale, 8 * scale);
         ctx.fillRect(92 * scale, 82 * scale, 8 * scale, 16 * scale);
 
         // Actually draw the plus properly
-        ctx.fillStyle = "#1a73e8";
+        ctx.fillStyle = '#1a73e8';
         const plusCenterX = 100 * scale;
         const plusCenterY = 90 * scale;
         const plusThick = 4 * scale;
@@ -185,16 +159,16 @@
 
       function downloadIcon(canvasId, size) {
         const canvas = document.getElementById(canvasId);
-        const link = document.createElement("a");
+        const link = document.createElement('a');
         link.download = `icon${size}.png`;
-        link.href = canvas.toDataURL("image/png");
+        link.href = canvas.toDataURL('image/png');
         link.click();
       }
 
       // Draw all icons on load
-      drawIcon(document.getElementById("icon16"), 16);
-      drawIcon(document.getElementById("icon48"), 48);
-      drawIcon(document.getElementById("icon128"), 128);
+      drawIcon(document.getElementById('icon16'), 16);
+      drawIcon(document.getElementById('icon48'), 48);
+      drawIcon(document.getElementById('icon128'), 128);
     </script>
   </body>
 </html>
