@@ -38,6 +38,6 @@ jobs:
         with:
           addon-guid: ${{ secrets.FIREFOX_ADDON_GUID }}
           xpi-path: ${{ steps.zip.outputs.PATH }}
-          source-path: .output/source.zip
+          source-file-path: .output/source.zip
           jwt-issuer: ${{ secrets.FIREFOX_JWT_ISSUER }}
           jwt-secret: ${{ secrets.FIREFOX_JWT_SECRET }}
