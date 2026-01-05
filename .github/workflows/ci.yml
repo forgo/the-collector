@@ -115,5 +115,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: the-collector-${{ matrix.browser }}
-          path: .output/${{ matrix.browser }}-mv*
+          path: .output/${{ matrix.browser }}-mv${{ matrix.browser == 'firefox' && '2' || '3' }}
           retention-days: 7
