@@ -36,6 +36,82 @@ export default function Gallery() {
   const hideControlsTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const slideshowTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Navigation callbacks - defined before useEffects that reference them
+  const navigateTo = useCallback(
+    (newIndex: number, direction: 'next' | 'prev') => {
+      if (isTransitioning || newIndex === currentIndex) return;
+
+      if (transition !== 'none') {
+        setIsTransitioning(true);
+        setPreviousIndex(currentIndex);
+        setTransitionDirection(direction);
+      }
+
+      setCurrentIndex(newIndex);
+
+      if (transition !== 'none') {
+        setTimeout(() => {
+          setIsTransitioning(false);
+          setPreviousIndex(null);
+        }, 300);
+      }
+    },
+    [currentIndex, transition, isTransitioning]
+  );
+
+  const goToPrevious = useCallback(() => {
+    const newIndex = currentIndex === 0 ? images.length - 1 : currentIndex - 1;
+    navigateTo(newIndex, 'prev');
+  }, [currentIndex, images.length, navigateTo]);
+
+  const goToNext = useCallback(() => {
+    const newIndex = (currentIndex + 1) % images.length;
+    navigateTo(newIndex, 'next');
+  }, [currentIndex, images.length, navigateTo]);
+
+  // CSS-based fullscreen toggle (native Fullscreen API doesn't work in extension windows)
+  const toggleFullscreen = useCallback(() => {
+    setIsFullscreen((prev) => !prev);
+  }, []);
+
+  const handleExitFullscreen = useCallback(() => {
+    setIsFullscreen(false);
+  }, []);
+
+  const toggleSlideshow = useCallback(() => {
+    setIsPlaying((prev) => !prev);
+  }, []);
+
+  const handleImageClick = useCallback(
+    (e: React.MouseEvent) => {
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const halfWidth = rect.width / 2;
+
+      if (clickX < halfWidth) {
+        goToPrevious();
+      } else {
+        goToNext();
+      }
+    },
+    [goToPrevious, goToNext]
+  );
+
+  const getTransitionClass = (isEntering: boolean, isExiting: boolean): string => {
+    if (transition === 'none') return '';
+
+    const transitionName =
+      transition === 'slide' && transitionDirection === 'prev' ? 'slideReverse' : transition;
+
+    if (isEntering) {
+      return `${styles[`${transitionName}Enter`]} ${styles[`${transitionName}EnterActive`]}`;
+    }
+    if (isExiting) {
+      return `${styles[`${transitionName}Exit`]} ${styles[`${transitionName}ExitActive`]}`;
+    }
+    return '';
+  };
+
   // Parse URL params on load
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -161,7 +237,6 @@ export default function Gallery() {
   }, [
     images.length,
     isFullscreen,
-    isPlaying,
     goToNext,
     goToPrevious,
     handleExitFullscreen,
@@ -209,83 +284,6 @@ export default function Gallery() {
       }
     };
   }, [isPlaying, currentIndex, images.length, slideshowInterval, isTransitioning, goToNext]);
-
-  // No native fullscreen API listeners needed - we use CSS-based fullscreen mode
-
-  const navigateTo = useCallback(
-    (newIndex: number, direction: 'next' | 'prev') => {
-      if (isTransitioning || newIndex === currentIndex) return;
-
-      if (transition !== 'none') {
-        setIsTransitioning(true);
-        setPreviousIndex(currentIndex);
-        setTransitionDirection(direction);
-      }
-
-      setCurrentIndex(newIndex);
-
-      if (transition !== 'none') {
-        setTimeout(() => {
-          setIsTransitioning(false);
-          setPreviousIndex(null);
-        }, 300);
-      }
-    },
-    [currentIndex, transition, isTransitioning]
-  );
-
-  const goToPrevious = useCallback(() => {
-    const newIndex = currentIndex === 0 ? images.length - 1 : currentIndex - 1;
-    navigateTo(newIndex, 'prev');
-  }, [currentIndex, images.length, navigateTo]);
-
-  const goToNext = useCallback(() => {
-    const newIndex = (currentIndex + 1) % images.length;
-    navigateTo(newIndex, 'next');
-  }, [currentIndex, images.length, navigateTo]);
-
-  // CSS-based fullscreen toggle (native Fullscreen API doesn't work in extension windows)
-  const toggleFullscreen = useCallback(() => {
-    setIsFullscreen((prev) => !prev);
-  }, []);
-
-  const handleExitFullscreen = useCallback(() => {
-    setIsFullscreen(false);
-  }, []);
-
-  const toggleSlideshow = useCallback(() => {
-    setIsPlaying((prev) => !prev);
-  }, []);
-
-  const handleImageClick = useCallback(
-    (e: React.MouseEvent) => {
-      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      const halfWidth = rect.width / 2;
-
-      if (clickX < halfWidth) {
-        goToPrevious();
-      } else {
-        goToNext();
-      }
-    },
-    [goToPrevious, goToNext]
-  );
-
-  const getTransitionClass = (isEntering: boolean, isExiting: boolean): string => {
-    if (transition === 'none') return '';
-
-    const transitionName =
-      transition === 'slide' && transitionDirection === 'prev' ? 'slideReverse' : transition;
-
-    if (isEntering) {
-      return `${styles[`${transitionName}Enter`]} ${styles[`${transitionName}EnterActive`]}`;
-    }
-    if (isExiting) {
-      return `${styles[`${transitionName}Exit`]} ${styles[`${transitionName}ExitActive`]}`;
-    }
-    return '';
-  };
 
   if (isLoading) {
     return (
