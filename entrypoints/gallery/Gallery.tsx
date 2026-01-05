@@ -158,7 +158,17 @@ export default function Gallery() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [images.length, isFullscreen, isPlaying]);
+  }, [
+    images.length,
+    isFullscreen,
+    isPlaying,
+    goToNext,
+    goToPrevious,
+    handleExitFullscreen,
+    navigateTo,
+    toggleFullscreen,
+    toggleSlideshow,
+  ]);
 
   // Mouse movement to show/hide controls
   useEffect(() => {
@@ -198,7 +208,7 @@ export default function Gallery() {
         clearTimeout(slideshowTimeout.current);
       }
     };
-  }, [isPlaying, currentIndex, images.length, slideshowInterval, isTransitioning]);
+  }, [isPlaying, currentIndex, images.length, slideshowInterval, isTransitioning, goToNext]);
 
   // No native fullscreen API listeners needed - we use CSS-based fullscreen mode
 
